@@ -1,0 +1,60 @@
+//
+//  NSStringUtils.m
+//  
+//
+//  Created by Vu Phan on 3/24/16.
+//
+//
+
+#import "NSStringUtils.h"
+
+@implementation NSStringUtils
+
+// Check string is Null or not
++ (BOOL) isNullString:(NSString*) string  {
+    
+    if (string == nil || [string isKindOfClass:[NSNull class]] || [string isEqualToString:@""])
+    {
+        return YES;
+    }
+    
+    return NO;
+}
+
+// Function convert NSString to NSattributedString
++ (NSAttributedString*) getAttributedStringFrom:(NSString*) str {
+    
+    
+//    UIFont *font =  [UIFont fontWithName:@"HelveticaNeue-Light" size:32.0f];
+//    NSDictionary *attrsDictionary = [NSDictionary dictionaryWithObject:font forKey:NSFontAttributeName];
+//    NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:str attributes:attrsDictionary];
+    
+    NSAttributedString *attributedString = [[NSAttributedString alloc] initWithData:[str dataUsingEncoding:NSUnicodeStringEncoding]
+                                                                            options:@{NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType }
+                                                                 documentAttributes:nil
+                                                                              error:nil];
+    
+    return attributedString;
+}
+
++ (BOOL) isHTMLFormat:(NSString*) str {
+    
+    if ([str rangeOfString:@">"].location != NSNotFound) {
+        return true;
+    }
+    
+    return false;
+}
+
+// set text for label
++ (void) setTextFor:(UITextView*) lb withString:(NSObject*) str
+{
+    if ([str isKindOfClass:[NSAttributedString class]] )
+    {
+        lb.attributedText = (NSAttributedString*)str;
+    }
+    else {
+        lb.text = (NSString*) str;
+    }
+}
+@end

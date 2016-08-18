@@ -1,0 +1,49 @@
+//
+//  FeatureTabView.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 8/16/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+
+class FeatureTabView: UIViewController, UITableViewDelegate, UITableViewDataSource  {
+    
+    var categories = ["Session 1", "Session 2", "Session 3", "Session 4", "Session 5"]
+    
+    @IBOutlet weak var tbvListFeature: UITableView!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        tbvListFeature.delegate = self
+        tbvListFeature.dataSource = self
+    }
+    
+    //UITableViewDataSource
+    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return categories[section]
+    }
+    
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        return categories.count
+    }
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        let identifier = "cell"
+        var cell: CategoryRow! = tableView.dequeueReusableCellWithIdentifier(identifier) as? CategoryRow
+        
+        if cell == nil {
+            tableView.registerNib(UINib(nibName: "CategoryRow", bundle: nil), forCellReuseIdentifier: identifier)
+            cell = tableView.dequeueReusableCellWithIdentifier(identifier) as? CategoryRow
+        }
+        
+        return cell
+    }
+}
+

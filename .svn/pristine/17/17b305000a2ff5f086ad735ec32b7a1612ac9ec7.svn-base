@@ -1,0 +1,89 @@
+//
+//  ShopVC.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 8/17/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+
+class ShopVC: UIViewController, IBaseView, UITableViewDelegate, UITableViewDataSource{
+
+    @IBOutlet weak var vChart: UIView!
+    @IBOutlet weak var btnNow: UIButton!
+    @IBOutlet weak var btnLaterToday: UIButton!
+    @IBOutlet weak var btnTomorrow: UIButton!
+    @IBOutlet weak var tbvPackage: UITableView!
+    
+    var lsPackage:NSMutableArray!
+    var presenter:FeaturePresenter!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        tbvPackage.dataSource = self
+        tbvPackage.delegate = self
+        // Get list all feature
+        presenter = FeaturePresenter(delegate: self)
+        presenter.getListPackage()
+        
+    }
+    
+    @IBAction func showNowChart(sender: AnyObject) {
+        
+    }
+    
+    @IBAction func showLaterTodayChart(sender: AnyObject) {
+        
+    }
+    
+    @IBAction func showTomorrowChart(sender: AnyObject) {
+        
+    }
+    
+    //TODO: Get List package from model
+    func doOnSuccess(result: AnyObject?){
+        lsPackage = result as! NSMutableArray
+    }
+    
+    func doOnError(err: NSError?){
+        print("Error when get packages!!!")
+    }
+    
+    //TODO: Config cell
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return lsPackage.count
+    }
+    
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return 90
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        let identifier = "packageCell"
+        var cell = tableView.dequeueReusableCellWithIdentifier(identifier) as? PackageCell
+        
+        if cell == nil {
+            tableView.registerNib(UINib(nibName: "PackageCell", bundle: nil), forCellReuseIdentifier: identifier)
+            cell = tableView.dequeueReusableCellWithIdentifier(identifier) as? PackageCell
+        }
+        
+        cell?.lbIndex.text = String(indexPath.row + 1)
+        cell?.lbName.text = lsPackage.objectAtIndex(indexPath.row) as? String
+        
+        return cell!
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+

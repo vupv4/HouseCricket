@@ -1,0 +1,17 @@
+//
+//  ILoginView.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 4/3/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import Foundation
+
+protocol ILoginView {
+    func loginSuccess();
+    func loginFail();
+}
+
+
+

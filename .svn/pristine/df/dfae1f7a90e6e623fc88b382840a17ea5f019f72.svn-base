@@ -1,0 +1,17 @@
+//
+//  MenuItemDTO.h
+//  
+//
+//  Created by Vu Phan on 3/10/16.
+//
+//
+
+#import <Foundation/Foundation.h>
+
+@interface MenuItemDTO : NSObject
+
+@property (nonatomic, strong) NSString *fileName;
+@property (nonatomic, strong) NSString *display;
+@property (nonatomic, strong) NSMutableArray *children; // list<MenuItemDTO>
+
+@end

@@ -1,0 +1,168 @@
+//
+//  ExaminationVC.m
+//  
+//
+//  Created by Vu Phan on 3/24/16.
+//
+//
+
+#import "ExaminationVC.h"
+#import "ExamOfflineVC.h"
+
+@interface ExaminationVC ()  <UITableViewDataSource, UITableViewDelegate>{
+    NSMutableArray * lsCurrentMenu;
+    NSMutableArray * lsStackChildMenu;
+    
+    int menuLayer;
+}
+
+@property (weak, nonatomic) IBOutlet UITableView *tbvMenus;
+
+@end
+
+@implementation ExaminationVC
+
+- (void)viewDidLoad {
+    
+    [super viewDidLoad];
+    
+    [self setInitView];
+    [super downloadFileAtURL:EXAMINATION_JSON_URL withName:JSON_EXAMINATION_FILE];
+    NSDictionary *json = [super getJsonFileContent:JSON_EXAMINATION_FILE];
+    
+    MenuItemDTO *dto;
+    
+    if ([json isKindOfClass:[NSDictionary class]])
+    {
+        dto = [super getMenuItemFromDic:json];
+    }
+    else
+    {
+        NSLog(@"co loi trong qua trinh doc file data.json");
+    }
+    
+    [self setListCurrentMenu:dto.children];
+    [super setNaviTitle:dto.display];
+    [lsStackChildMenu addObject:dto];
+}
+
+- (void) setInitView {
+    lsCurrentMenu = [[NSMutableArray alloc]init];
+    lsStackChildMenu = [[NSMutableArray alloc]init];
+    self.tbvMenus.dataSource = self;
+    self.tbvMenus.delegate = self;
+    menuLayer = 0;
+}
+
+- (void) setListCurrentMenu:(NSMutableArray*) array {
+    
+    [lsCurrentMenu removeAllObjects];
+    
+    for (NSObject *item in array) {
+        
+        MenuItemDTO *dto;
+        
+        if ([item isKindOfClass:[NSDictionary class]])
+        {
+            dto = [super getMenuItemFromDic:(NSDictionary*)item];
+        }
+        else
+        {
+            dto = (MenuItemDTO*) item;
+        }
+        
+        [lsCurrentMenu addObject:dto];
+    }
+}
+
+#pragma mark - Tableview Delegate
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
+    return [lsCurrentMenu count];
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 80;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    MenuItemDTO *dto = [lsCurrentMenu objectAtIndex:indexPath.row];
+    [super setNaviTitle:dto.display];
+    
+    if ([self isFolder:dto.children])
+    {
+        menuLayer++;
+        [self setListCurrentMenu:dto.children];
+        [lsStackChildMenu addObject:dto];
+        [self.tbvMenus reloadData];
+        
+    }
+    else
+    {
+        NSString *urlFile = [super getURLDownloadFileWithName:dto.fileName inStack:lsStackChildMenu];
+        NSString *nameSave = [super getFullNameFile:dto.fileName fromStack:lsStackChildMenu];
+        nameSave = [NSString stringWithFormat:@"%@.json", nameSave];
+        
+        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+            
+            [super downloadFileAtURL:urlFile withName:nameSave];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+
+                // goto Exam screens and start practice
+                ExamOfflineVC *examVC = [[ExamOfflineVC alloc]init];
+                examVC.nameFile = [super getPathFileInDocument:nameSave];
+                examVC.isOnlineMode = true;
+                [self.navigationController pushViewController:examVC animated:NO];
+            });
+        });
+    }
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    static NSString *menusCell = @"MenusCell";
+    
+    MenusCell *cell = (MenusCell *)[tableView dequeueReusableCellWithIdentifier:menusCell];
+    
+    if (cell == nil) {
+        NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"MenusCell" owner:self options:nil];
+        cell = [nib objectAtIndex:0];
+    }
+    
+    MenuItemDTO *dto = [lsCurrentMenu objectAtIndex:indexPath.row];
+    cell.nameCell.text = dto.display;
+    
+    if ([self isFolder:dto.children]){
+        cell.imvCell.image = [UIImage imageNamed:@"folder_test.png"];
+        
+    } else {
+        cell.imvCell.image = [UIImage imageNamed:@"test_english_icon.png"];
+    }
+    
+    return cell;
+}
+
+#pragma mark - Back event
+
+- (void) back:(UIBarButtonItem *)sender  {
+    
+    menuLayer--;
+    
+    if (menuLayer >= 0)
+    {
+        MenuItemDTO *dto = [lsStackChildMenu objectAtIndex:menuLayer];
+        [self setListCurrentMenu:dto.children];
+        [lsStackChildMenu removeObjectAtIndex:menuLayer + 1];
+        [super setNaviTitle:dto.display];
+        [self.tbvMenus reloadData];
+    }
+    else
+    {
+        [super back:sender];
+    }
+}
+
+@end

@@ -1,0 +1,17 @@
+//
+//  UIAlertViewControllerUtils.swift
+//  SwiftFramework
+//
+//  Created by Pacific Ocean on 4/4/16.
+//  Copyright © 2016 Pacific Ocean. All rights reserved.
+//
+
+import UIKit
+
+extension UIAlertController {
+    
+    /// Easy way to present UIAlertController
+    func show() {
+        UIApplication.sharedApplication().keyWindow?.rootViewController?.presentViewController(self, animated: true, completion: nil)
+    }
+}

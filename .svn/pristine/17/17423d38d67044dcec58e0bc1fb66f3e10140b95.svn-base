@@ -1,0 +1,16 @@
+//
+//  IndexQuestionDTO.h
+//  
+//
+//  Created by Vu Phan on 3/27/16.
+//
+//
+
+#import <Foundation/Foundation.h>
+
+@interface IndexQuestionDTO : NSObject
+
+@property (nonatomic, assign) int index;
+@property (nonatomic, strong) NSString* path;
+
+@end

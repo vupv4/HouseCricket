@@ -1,0 +1,40 @@
+//
+//  BaseVC.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 4/3/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+
+class BaseVC: UIViewController {
+
+    override func viewDidLoad()
+    {
+        super.viewDidLoad()
+//        settingNaviViewControler()
+//        
+//        // set event left and right gesture
+//        if let slideMenuController = self.slideMenuController()
+//        {
+//            slideMenuController.addLeftGestures()
+//            slideMenuController.addRightGestures()
+//        }
+    }
+
+    
+    
+    // Setting navicontroller
+//    func settingNaviViewControler ()
+//    {
+//        self.navigationController?.navigationBarHidden = false
+//        self.addLeftBarButtonWithImage(UIImage(named: "ic_menu_black_24dp.png")!)
+//        self.addRightBarButtonWithImage(UIImage(named: "ic_notifications_black_24dp.png")!)
+//        self.navigationController?.navigationBar.barTintColor = UIColor.whiteColor()
+//    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+    }
+}

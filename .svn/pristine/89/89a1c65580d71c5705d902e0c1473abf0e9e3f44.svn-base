@@ -1,0 +1,22 @@
+//
+//  ColorDefine.h
+//  TemplateExample
+//
+//  Created by Vu Phan on 3/18/16.
+//  Copyright (c) 2016 Viettel. All rights reserved.
+//
+
+#define colorPrimary                        @"3F51B5"
+#define colorPrimaryDark                    @"303F9F"
+#define colorAccent                         @"FF4081"
+#define app_title                           @"000000"
+#define app_title_text                      @"FFFFFF"
+#define app_title_background                @"202a"
+#define white                               @"FFF"
+#define answer_correct_color                @"ffff00"
+#define answer_incorrect_color              @"ff0000"
+#define answer_normal_color                 @"ffffff"
+#define list_view_file_background_color     @"6567e6c4"
+#define radio_button_color                  @"12426e"
+#define radio_button_pressed_color          @"1e598f"
+

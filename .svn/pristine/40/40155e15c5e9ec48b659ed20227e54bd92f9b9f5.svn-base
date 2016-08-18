@@ -1,0 +1,56 @@
+//
+//  MainVC.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 4/3/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+
+class MainVC: BaseVC, IMainView, UITableViewDelegate, UITableViewDataSource{
+
+    @IBOutlet weak var tbvProduct: UITableView!
+    
+    var lsProduct: NSMutableArray!
+    var mainPresenter: MainPresenter!
+    var data: LoginResponse!
+    
+    override func viewDidLoad()
+    {
+        super.viewDidLoad()
+        
+        lsProduct = NSMutableArray()
+        tbvProduct.dataSource = self
+        tbvProduct.delegate = self
+        self.title = data.companyName as String
+        
+        mainPresenter = MainPresenter(delegate: self)
+        mainPresenter.getListProduct()
+    }
+    
+    // MARK: UITableViewDataSource
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return lsProduct.count;
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        let cell = UITableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: nil)
+        
+        let product: Products = lsProduct[indexPath.row] as! Products
+        cell.textLabel?.text = "\(product.code) - \(product.name)"
+        
+        return cell
+    }
+    
+    // MARK: IMainView
+    func doOnSuccess(result: AnyObject?) {
+        lsProduct = result as? NSMutableArray
+        tbvProduct .reloadData()
+    }
+    
+    func doOnError(err: NSError?) {
+        NSLog("loi trong qua trinh lay danh sach san pham: \(err)")
+    }
+}

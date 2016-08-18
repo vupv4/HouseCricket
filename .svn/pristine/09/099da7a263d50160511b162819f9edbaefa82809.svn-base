@@ -1,0 +1,20 @@
+//
+//  Bridge_Header.h
+//  VPMTFramework
+//
+//  Created by Vu Phan on 4/4/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+#ifndef Bridge_Header_h
+#define Bridge_Header_h
+
+
+#endif /* Bridge_Header_h */
+
+#import "FMDB.h"
+
+/* Require:
+ + iOS 8.0+ / Mac OS X 10.9+ / tvOS 9.0+ / watchOS 2.0+
+ + Xcode 7.2+*/
+#import "Alamofire.h"

@@ -1,0 +1,90 @@
+//
+//  FeatureRepository.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 8/16/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+
+class FeatureRepository: NSObject {
+    
+    func getListPackage(success: DataCallBackSuccess, error: DataCallBackError){
+        
+        let lsPackage: NSMutableArray = NSMutableArray()
+        
+        lsPackage.addObject("10 Cards, 03 Learned, 04 Reviews")
+        lsPackage.addObject("20 Cards, 03 Learned, 03 Reviews")
+        lsPackage.addObject("30 Cards, 03 Learned, 05 Reviews")
+        lsPackage.addObject("40 Cards, 03 Learned, 06 Reviews")
+        lsPackage.addObject("50 Cards, 03 Learned, 04 Reviews")
+        lsPackage.addObject("60 Cards, 03 Learned, 04 Reviews")
+        
+        
+        success(lsPackage)
+    }
+
+    func getListFeature(success: DataCallBackSuccess, error: DataCallBackError) {
+        
+        let lsFeature: NSMutableArray = NSMutableArray()
+        
+        let ft = Feature()
+        ft.name = "Flappy bird"
+        ft.category = ANIMALS
+        ft.price = "79$"
+        ft.imageUrl = "bird.png"
+        
+        let ft1 = Feature()
+        ft1.name = "TShirt"
+        ft1.category = CLOTHING
+        ft1.price = "8$"
+        ft1.imageUrl = "pikachu_face.png"
+        
+        let ft2 = Feature()
+        ft2.name = "Bizza"
+        ft2.category = FOOD
+        ft2.price = "6$"
+        ft2.imageUrl = "pikachu.png"
+        
+        let ft3 = Feature()
+        ft3.name = "Elephen"
+        ft3.category = ANIMALS
+        ft3.price = "3$"
+        ft3.imageUrl = "psyduck.png"
+        
+        let ft4 = Feature()
+        ft4.name = "Egg"
+        ft4.category = FOOD
+        ft4.price = "2$"
+        ft4.imageUrl = "squirtle.png"
+        
+        let ft5 = Feature()
+        ft5.name = "Cat"
+        ft5.category = ANIMALS
+        ft5.price = "1$"
+        ft5.imageUrl = "trainer_boy.png"
+        
+        lsFeature.addObject(ft)
+        lsFeature.addObject(ft1)
+        lsFeature.addObject(ft4)
+        lsFeature.addObject(ft5)
+        lsFeature.addObject(ft2)
+        lsFeature.addObject(ft3)
+        lsFeature.addObject(ft4)
+        lsFeature.addObject(ft5)
+        lsFeature.addObject(ft)
+        lsFeature.addObject(ft1)
+        lsFeature.addObject(ft5)
+        lsFeature.addObject(ft)
+        lsFeature.addObject(ft2)
+        lsFeature.addObject(ft3)
+        lsFeature.addObject(ft4)
+        lsFeature.addObject(ft1)
+        lsFeature.addObject(ft2)
+        lsFeature.addObject(ft3)
+        
+        
+        success(lsFeature)
+    }
+}

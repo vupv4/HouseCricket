@@ -1,0 +1,15 @@
+//
+//  Products.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 4/5/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+
+class Products: NSObject {
+    var code:NSString!
+    var name:NSString!
+    var price:NSString!
+}

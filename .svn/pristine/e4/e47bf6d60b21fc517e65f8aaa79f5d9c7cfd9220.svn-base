@@ -1,0 +1,219 @@
+//
+//  QuestionCell.m
+//  
+//
+//  Created by Vu Phan on 3/21/16.
+//
+//
+
+#import "QuestionCell.h"
+#import "NSStringUtils.h"
+
+@implementation QuestionCell
+
+- (void)awakeFromNib {}
+
+#pragma mark -  Load & Bind cell
+// show correct and incorrect answer
+- (void) showAnswer:(int) answer withImageName:(NSString*) name {
+    switch (answer) {
+        case ANSWER_A:
+            [self.radioA setImage:[UIImage imageNamed:name]];
+            self.lbAnswerA.textColor = [name isEqualToString:@"radio_button_correct.png"]?[UIColor blueColor]:[UIColor redColor];
+            break;
+        case ANSWER_B:
+            [self.radioB setImage:[UIImage imageNamed:name]];
+            self.lbAnswerB.textColor = [name isEqualToString:@"radio_button_correct.png"]?[UIColor blueColor]:[UIColor redColor];
+            break;
+        case ANSWER_C:
+            [self.radioC setImage:[UIImage imageNamed:name]];
+            self.lbAnswerC.textColor = [name isEqualToString:@"radio_button_correct.png"]?[UIColor blueColor]:[UIColor redColor];
+            break;
+        case ANSWER_D:
+            [self.radioD setImage:[UIImage imageNamed:name]];
+            self.lbAnswerD.textColor = [name isEqualToString:@"radio_button_correct.png"]?[UIColor blueColor]:[UIColor redColor];
+            break;
+        default:
+            break;
+    }
+
+}
+// update radio button
+- (void) updateRadioButton:(int) ans {
+    switch (ans) {
+        case ANSWER_A:{
+            [self.radioA setImage:[UIImage imageNamed:@"radio_btn_selected.png"]];
+            [self.radioB setImage:[UIImage imageNamed:@"radio_btn_unselect.png"]];
+            [self.radioC setImage:[UIImage imageNamed:@"radio_btn_unselect.png"]];
+            [self.radioD setImage:[UIImage imageNamed:@"radio_btn_unselect.png"]];
+        }
+            break;
+        case ANSWER_B:{
+            [self.radioA setImage:[UIImage imageNamed:@"radio_btn_unselect.png"]];
+            [self.radioB setImage:[UIImage imageNamed:@"radio_btn_selected.png"]];
+            [self.radioC setImage:[UIImage imageNamed:@"radio_btn_unselect.png"]];
+            [self.radioD setImage:[UIImage imageNamed:@"radio_btn_unselect.png"]];
+
+        }
+            break;
+        case ANSWER_C:{
+            [self.radioA setImage:[UIImage imageNamed:@"radio_btn_unselect.png"]];
+            [self.radioB setImage:[UIImage imageNamed:@"radio_btn_unselect.png"]];
+            [self.radioC setImage:[UIImage imageNamed:@"radio_btn_selected.png"]];
+            [self.radioD setImage:[UIImage imageNamed:@"radio_btn_unselect.png"]];
+
+        }
+            break;
+        case ANSWER_D:{
+            [self.radioA setImage:[UIImage imageNamed:@"radio_btn_unselect.png"]];
+            [self.radioB setImage:[UIImage imageNamed:@"radio_btn_unselect.png"]];
+            [self.radioC setImage:[UIImage imageNamed:@"radio_btn_unselect.png"]];
+            [self.radioD setImage:[UIImage imageNamed:@"radio_btn_selected.png"]];
+
+        }
+            break;
+        default:
+            break;
+    }
+}
+
+// Check examination is submited or not => update Cell follow cases.
+- (void) checkSubmitedAnswer:(BOOL) isSubmited {
+    
+    if (isSubmited){
+        [self showAnswer:self.data.selectedAnswer withImageName:@"radio_button_incorrect.png"];
+        [self showAnswer:(self.data.correctAnswer+1) withImageName:@"radio_button_correct.png"]; // +1 vì dữ liệu trả về AnsA == 0 trong khi define AnsA == 1
+        
+    } else {
+        [self updateRadioButton:self.data.selectedAnswer];
+    }
+}
+
+// bind Data on Cell
+- (void) setDataOnCell:(Question*) ques {
+    
+    [NSStringUtils setTextFor:self.lbQuestion withString:ques.questionTitle];
+    
+    switch (ques.answer.count) {
+            
+        case QUESTION_WITH_ONE_ANSWER:{
+            
+            [NSStringUtils setTextFor:self.lbAnswerA withString:[ques.answer objectAtIndex:0]];
+            [self.radioA setHidden:NO];
+            [self.radioB setHidden:YES];
+            [self.radioC setHidden:YES];
+            [self.radioD setHidden:YES];
+        }
+            break;
+            
+        case QUESTION_WITH_TWO_ANSWERS:{
+            
+            [NSStringUtils setTextFor:self.lbAnswerA withString:[ques.answer objectAtIndex:0]];
+            [NSStringUtils setTextFor:self.lbAnswerB withString:[ques.answer objectAtIndex:1]];
+            [self.radioA setHidden:NO];
+            [self.radioB setHidden:NO];
+            [self.radioC setHidden:YES];
+            [self.radioD setHidden:YES];
+        }
+            break;
+            
+        case QUESTION_WITH_THREE_ANSWERS:{
+            [NSStringUtils setTextFor:self.lbAnswerA withString:[ques.answer objectAtIndex:0]];
+            [NSStringUtils setTextFor:self.lbAnswerB withString:[ques.answer objectAtIndex:1]];
+            [NSStringUtils setTextFor:self.lbAnswerC withString:[ques.answer objectAtIndex:2]];
+            [self.radioA setHidden:NO];
+            [self.radioB setHidden:NO];
+            [self.radioC setHidden:NO];
+            [self.radioD setHidden:YES];
+        }
+            break;
+            
+        case QUESTION_WITH_FOUR_ANSWERS:{
+            
+            [NSStringUtils setTextFor:self.lbAnswerA withString:[ques.answer objectAtIndex:0]];
+            [NSStringUtils setTextFor:self.lbAnswerB withString:[ques.answer objectAtIndex:1]];
+            [NSStringUtils setTextFor:self.lbAnswerC withString:[ques.answer objectAtIndex:2]];
+            [NSStringUtils setTextFor:self.lbAnswerD withString:[ques.answer objectAtIndex:3]];
+            
+            [self.radioA setHidden:NO];
+            [self.radioB setHidden:NO];
+            [self.radioC setHidden:NO];
+            [self.radioD setHidden:NO];
+        }
+            break;
+            
+        default:
+            break;
+    }
+}
+
+// update Cell frame
+- (void) updateCellFrame
+{
+    int heightCell = 0;
+    CGRect frameCell = self.frame;
+    CGRect frameVContent = self.vContent.frame;
+    
+    switch (self.data.answer.count) {
+            
+        case QUESTION_WITH_ONE_ANSWER:
+            heightCell = HEIGH_WITH_ONE_ANSWER;
+            break;
+            
+        case QUESTION_WITH_TWO_ANSWERS:
+            heightCell = HEIGH_WITH_TWO_ANSWER;
+            break;
+            
+        case QUESTION_WITH_THREE_ANSWERS:
+            heightCell = HEIGH_WITH_THREE_ANSWER;
+            break;
+            
+        case QUESTION_WITH_FOUR_ANSWERS:
+            heightCell = HEIGH_WITH_FOUR_ANSWER;
+            break;
+            
+        default:
+            break;
+    }
+    
+    if (![NSStringUtils isNullString:self.data.category]) {
+        heightCell+= HEIGH_CATEGORY;
+        [self.lbCategory setHidden:NO];
+        self.lbCategory.text = self.data.category;
+        self.vContent.frame = CGRectMake(frameVContent.origin.x, HEIGH_CATEGORY, frameVContent.size.width, frameVContent.size.height);
+    } else {
+        [self.lbCategory setHidden:YES];
+        self.vContent.frame = CGRectMake(frameVContent.origin.x, 0, frameVContent.size.width, frameVContent.size.height + HEIGH_CATEGORY);
+    }
+    
+    self.frame = CGRectMake(frameCell.origin.x, frameCell.origin.y, frameCell.size.width, heightCell);
+}
+
+- (void) loadCell
+{
+    [self setDataOnCell:self.data];
+    [self updateCellFrame];
+    [self checkSubmitedAnswer:self.isSubmited];
+}
+
+#pragma mark -  Action on Cell
+- (IBAction)selectAnswerA:(id)sender {
+    self.data.selectedAnswer = ANSWER_A;
+    [self.delegate myRadioCellDelegateDidCheckRadioButton:self];
+}
+
+- (IBAction)selectAnswerB:(id)sender {
+    self.data.selectedAnswer = ANSWER_B;
+    [self.delegate myRadioCellDelegateDidCheckRadioButton:self];
+}
+
+- (IBAction)selectAnswerC:(id)sender {
+    self.data.selectedAnswer = ANSWER_C;
+    [self.delegate myRadioCellDelegateDidCheckRadioButton:self];
+}
+
+- (IBAction)selectAnswerD:(id)sender {
+    self.data.selectedAnswer = ANSWER_D;
+    [self.delegate myRadioCellDelegateDidCheckRadioButton:self];
+}
+@end

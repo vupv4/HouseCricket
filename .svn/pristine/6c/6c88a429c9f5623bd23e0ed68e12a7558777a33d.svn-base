@@ -1,0 +1,14 @@
+//
+//  GrammarVC.h
+//  
+//
+//  Created by Vu Phan on 3/24/16.
+//
+//
+
+#import <UIKit/UIKit.h>
+#import "BaseVC.h"
+
+@interface GrammarVC : BaseVC
+
+@end

@@ -1,0 +1,17 @@
+//
+//  FileUtils.h
+//  
+//
+//  Created by Vu Phan on 3/18/16.
+//
+//
+
+#import <Foundation/Foundation.h>
+
+@interface FileUtils : NSObject
+
++ (NSData*) getContentFileInBundleWithName:(NSString*) name extension:(NSString*) tag ;
++ (NSData*) getContentFileFromPath:(NSString*) path;
++ (BOOL) isExistFile:(NSString*) name ;
+
+@end

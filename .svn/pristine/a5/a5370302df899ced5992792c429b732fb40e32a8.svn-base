@@ -1,0 +1,83 @@
+//
+//  ProductRepository.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 4/5/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+
+class ProductRepository: NSObject {
+    
+    // Lay danh sách sản phẩm từ CSDK SQLlite
+    func getListProduct(success: DataCallBackSuccess, error: DataCallBackError) {
+        // create database
+        let documents = try! NSFileManager.defaultManager().URLForDirectory(.DocumentDirectory, inDomain: .UserDomainMask, appropriateForURL: nil, create: false)
+        let fileURL = documents.URLByAppendingPathComponent("test.sqlite")
+        
+        // Open Database
+        let database = FMDatabase(path: fileURL.path)
+        
+        if !database.open() {
+            print("Unable to open database")
+            return
+        }
+        
+        // Get list Product
+        let lsProduct: NSMutableArray = NSMutableArray()
+        
+        do {
+            let rs = try database.executeQuery("select code, name, price from Products", values: nil)
+            
+            while rs.next() {
+                
+                let pro = Products()
+                pro.name = rs.stringForColumn("name")
+                pro.code = rs.stringForColumn("code")
+                pro.price = rs.stringForColumn("price")
+                
+                lsProduct .addObject(pro)
+            }
+            
+            success(lsProduct)
+            
+        } catch let err as NSError {
+            print("failed: \(err.localizedDescription)")
+            error(err)
+            
+        }
+        
+        database.close()
+    }
+    
+    // Create table Product(code, name, price)
+    func createProductTable() {
+        // create database
+        let documents = try! NSFileManager.defaultManager().URLForDirectory(.DocumentDirectory, inDomain: .UserDomainMask, appropriateForURL: nil, create: false)
+        let fileURL = documents.URLByAppendingPathComponent("test.sqlite")
+        
+        // Open Database
+        let database = FMDatabase(path: fileURL.path)
+        
+        if !database.open() {
+            print("Unable to open database")
+            return
+        }
+        
+        do {
+            try database.executeUpdate("create table Products(code text, name text, price text)", values: nil)
+            try database.executeUpdate("insert into  Products (code, name, price) values (?, ?, ?)", values: ["111", "Bánh kem", "10.000"])
+            try database.executeUpdate("insert into  Products (code, name, price) values (?, ?, ?)", values: ["112", "Socola", "5.000"])
+            try database.executeUpdate("insert into  Products (code, name, price) values (?, ?, ?)", values: ["113", "Vani", "5.000"])
+            try database.executeUpdate("insert into  Products (code, name, price) values (?, ?, ?)", values: ["114", "Kem Bạc Hà", "5.000"])
+            try database.executeUpdate("insert into  Products (code, name, price) values (?, ?, ?)", values: ["115", "Kem dâu", "5.000"])
+            try database.executeUpdate("insert into  Products (code, name, price) values (?, ?, ?)", values: ["116", "Kem Quế", "5.000"])
+            
+        } catch let err as NSError {
+            print("failed: \(err.localizedDescription)")
+        }
+        
+        database.close()
+    }
+}

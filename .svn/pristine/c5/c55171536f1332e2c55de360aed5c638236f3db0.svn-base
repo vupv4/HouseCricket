@@ -1,0 +1,78 @@
+//
+//  LoginVC.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 4/3/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+import Crashlytics
+
+class LoginVC: BaseVC, ILoginView {
+
+    var loginPresenter: LoginPresenter!
+    
+    @IBOutlet weak var tfUserName: UITextField!
+    @IBOutlet weak var tfPassword: UITextField!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        loginPresenter = LoginPresenter(delegate: self)
+        
+        // Demo Crashlytic
+//        let button = UIButton(type: UIButtonType.RoundedRect)
+//        button.frame = CGRectMake(20, 100, 100, 30)
+//        button.setTitle("Crash", forState: UIControlState.Normal)
+//        button.addTarget(self, action: #selector(LoginVC.crashButtonTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+//        view.addSubview(button)
+    }
+    
+    // MARK: Do login
+    @IBAction func doLogin(sender: AnyObject) {
+        
+        if (validate())
+        {
+            loginPresenter.doLogin(tfUserName.text!, pwd: tfPassword.text! )
+        }
+        else
+        {
+            let alertController = UIAlertController(title: "Thông báo", message:"Vui lòng nhập tên đăng nhập và mật khẩu",preferredStyle: UIAlertControllerStyle.Alert)
+            alertController.addAction(UIAlertAction(title: "Đồng ý", style: UIAlertActionStyle.Default,handler: nil))
+            self.presentViewController(alertController, animated: true, completion: nil)
+        }
+    }
+    
+    // MARK: check validate login
+    func validate () -> Bool {
+        
+        print(tfUserName.text)
+        
+        if ((tfUserName.text != "")&&(tfPassword.text != "")) {
+            return true
+        }
+        
+        return false
+    }
+    
+    // MARK: process result after request login
+    func loginSuccess(response: AnyObject?)
+    {
+        let res:LoginResponse = response as! LoginResponse
+        let mainVC = MainVC(nibName: "MainVC", bundle: nil)
+        mainVC.data = res
+        self.navigationController?.pushViewController(mainVC, animated:false)
+    }
+    
+    func loginFail(error: NSError?) {
+        let alertController = UIAlertController(title: "Thông báo", message:"Thông tin đăng nhập không chính xác, vui lòng kiểm tra lại", preferredStyle: UIAlertControllerStyle.Alert)
+        alertController.addAction(UIAlertAction(title: "Đồng ý", style: UIAlertActionStyle.Default,handler: nil))
+        self.presentViewController(alertController, animated: true, completion: nil)
+    }
+    
+//    // MARK: Demo Crashlytic
+//    @IBAction func crashButtonTapped(sender: AnyObject)
+//    {
+//        Crashlytics.sharedInstance().crash()
+//    }
+}

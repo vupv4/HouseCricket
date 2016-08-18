@@ -1,0 +1,18 @@
+//
+//  MainVC.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 4/3/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+
+class MainVC: BaseVC {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+    
+    }
+
+}

@@ -1,0 +1,92 @@
+//
+//  LoginVC.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 4/3/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+import Crashlytics
+
+class LoginVC: BaseVC, ILoginView, UITextFieldDelegate {
+
+    var loginPresenter: LoginPresenter!
+    
+    @IBOutlet weak var tfUserName: UITextField!
+    @IBOutlet weak var tfPassword: UITextField!
+    
+    override func viewDidLoad()
+    {
+        super.viewDidLoad()
+        
+//        // Demo Crashlytic
+//        let button = UIButton(type: UIButtonType.RoundedRect)
+//        button.frame = CGRectMake(20, 100, 100, 30)
+//        button.setTitle("Crash", forState: UIControlState.Normal)
+//        button.addTarget(self, action: #selector(LoginVC.crashButtonTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+//        view.addSubview(button)
+        
+        // Hidden Navigation Bar
+        self.navigationController?.navigationBarHidden = true
+        
+        // remove swift left and right gesture
+        if let slideMenuController = self.slideMenuController()
+        {
+            slideMenuController.removeLeftGestures()
+            slideMenuController.removeRightGestures()
+        }
+        
+        tfUserName.delegate = self
+        tfPassword.delegate = self
+        
+        loginPresenter = LoginPresenter(delegate: self)
+    }
+    
+    // MARK: Do Login
+    @IBAction func doLogin(sender: AnyObject) {
+        
+        if (validate()) {
+            loginPresenter.doLogin(tfUserName.text!, pwd: tfPassword.text! )
+        }
+        else {
+            UIAlertController.showWarning("Thông báo", message: "Vui lòng nhập tên đăng nhập và mật khẩu", buttonOK: "Đồng ý", view: self)
+        }
+    }
+    
+    // MARK: process result after request login
+    func loginSuccess(response: AnyObject?)
+    {
+        let mainVC = MainVC(nibName: "MainVC", bundle: nil)
+        mainVC.data = response as? LoginResponse
+        self.navigationController?.pushViewController(mainVC, animated: false)
+    }
+    
+    func loginFail(error: NSError?)
+    {
+        UIAlertController.showWarning("Thông báo", message: "Thông tin đăng nhập không chính xác, vui lòng kiểm tra lại", buttonOK: "Đồng ý", view: self)
+    }
+    
+    // MARK: check validate login
+    func validate () -> Bool
+    {
+        if ((tfUserName.text != "")&&(tfPassword.text != "")) {
+            return true
+        }
+        
+        return false
+    }
+    
+    // Hidden Keyboard, called when 'return' key pressed. return NO to ignore.
+    func textFieldShouldReturn(textField: UITextField) -> Bool
+    {
+        textField.resignFirstResponder()
+        return true;
+    }
+    
+//// MARK: Demo Crashlytic
+//    @IBAction func crashButtonTapped(sender: AnyObject)
+//    {
+//        Crashlytics.sharedInstance().crash()
+//    }
+}

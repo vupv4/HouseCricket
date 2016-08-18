@@ -1,0 +1,32 @@
+//
+//  LoginPresenter.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 4/3/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+
+class LoginPresenter: NSObject {
+    
+    var delegate: ILoginView ;
+    
+    init(delegate:ILoginView) {
+        self.delegate = delegate;
+    }
+    
+    func doLogin(username: NSString, pwd: NSString) {
+        
+        // Call repository process Login
+        delegate.loginSuccess()
+        
+//        if (username .isEqualToString("vupv4@viettel.com.vn"))
+//        {
+//            delegate.loginSuccess()
+//        } else
+//        {
+//            delegate.loginFail()
+//        }
+    }
+}

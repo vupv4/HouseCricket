@@ -1,0 +1,16 @@
+//
+//  MenusCell.h
+//  
+//
+//  Created by Vu Phan on 3/11/16.
+//
+//
+
+#import <UIKit/UIKit.h>
+
+@interface MenusCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UIImageView *imvCell;
+@property (weak, nonatomic) IBOutlet UILabel *nameCell;
+
+@end

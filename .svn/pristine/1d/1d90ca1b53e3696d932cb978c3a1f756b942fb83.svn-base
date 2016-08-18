@@ -1,0 +1,59 @@
+//
+//  AppConstant.h
+//  TemplateExample
+//
+//  Created by Vu Phan on 3/9/16.
+//  Copyright (c) 2016 Viettel. All rights reserved.
+//
+
+#define JSON_DATA_FILE  @"data.json"
+#define JSON_GRAMMAR_FILE  @"grammar_data.json"
+#define JSON_EXAMINATION_FILE  @"examination_data.json"
+
+#define INDEX_DATA_FILE  @"index.txt"
+#define SERVER_BASE_PATH  @"http://doanit.com/appdata/english4all/"
+
+#define GRAMMAR_FOLDER  @"grammar/"
+#define EXAMINATION_FOLDER  @"examination/"
+#define ASSET_FOLDER  @"assets/"
+
+#define GRAMMAR_JSON_URL  [NSString stringWithFormat:@"%@/%@/%@", SERVER_BASE_PATH, GRAMMAR_FOLDER, JSON_DATA_FILE]
+#define EXAMINATION_JSON_URL  [NSString stringWithFormat:@"%@/%@/%@", SERVER_BASE_PATH, EXAMINATION_FOLDER, JSON_DATA_FILE]
+
+#define MESSAGE_FILE_NAME  @"file_name"
+#define MESSAGE_FOLDER  @"category"
+
+#define USER_RESULT_FILE  @"user_result.json"
+#define CHARSET  @"UTF-8"
+
+#define PACKAGE_NAME  @"voon.truongvan.english_for_all_level"
+#define APP_PACKAGE  @"https://play.google.com/store/apps/details?id" + PACKAGE_NAME
+#define FACEBOOK_SHARE_PATH  @"https://www.facebook.com/sharer/sharer.php?u"
+#define FACEBOOK_SHARE_FULL_PATH  FACEBOOK_SHARE_PATH + APP_PACKAGE
+
+#define GPLUS_URL_SHARE  @"https://plus.google.com/u/0/communities/105959375540598215686"
+
+// demo
+#define ACH_TT_ACHIEV @"CgkIsY-_374bEAIQAg"
+#define LEAD_TTLEADERBOARD @"CgkIsY-_374bEAIQAQ"
+
+// answer
+#define DEFAULT  0
+#define ANSWER_A 1
+#define ANSWER_B 2
+#define ANSWER_C 3
+#define ANSWER_D 4
+
+#define QUESTION_WITH_ONE_ANSWER 1
+#define QUESTION_WITH_TWO_ANSWERS 2
+#define QUESTION_WITH_THREE_ANSWERS 3
+#define QUESTION_WITH_FOUR_ANSWERS 4
+
+// height
+#define HEIGH_WITH_ONE_ANSWER 80
+#define HEIGH_WITH_TWO_ANSWER 100
+#define HEIGH_WITH_THREE_ANSWER 135
+#define HEIGH_WITH_FOUR_ANSWER 165
+#define HEIGH_CATEGORY 50
+
+#define TOTAL_QUESTION_APP 25272

@@ -1,0 +1,574 @@
+//
+//  UIImageViewDraggable.m
+
+
+#import "UIImageViewDraggable.h"
+#import <objc/runtime.h>
+
+@interface UIImageViewDraggable()<UIGestureRecognizerDelegate>
+
+@property (nonatomic, weak) UIPanGestureRecognizer *panGes;
+@property (nonatomic, weak) UILongPressGestureRecognizer *longGes;
+@property (nonatomic, assign) BOOL longPressed;
+@property (nonatomic, assign) CGPoint originCenter;
+
+@end
+
+@implementation UIImageViewDraggable
+
+- (instancetype)initWithCoder:(NSCoder *)coder
+{
+    self = [super initWithCoder:coder];
+    if (self) {
+        [self commonInit];
+    }
+    return self;
+}
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self commonInit];
+    }
+    return self;
+}
+
+-(instancetype)initWithImage:(UIImage *)image
+{
+    self=[super initWithImage:image];
+    
+    [self commonInit];
+    
+    return self;
+}
+
+-(void) commonInit
+{
+#if DEBUG
+    self.userInteractionEnabled=true;
+    
+    UIPanGestureRecognizer *panGes=[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGes:)];
+    
+    panGes.delegate=self;
+    
+    [self addGestureRecognizer:panGes];
+    
+    UILongPressGestureRecognizer *longGes=[[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longGes:)];
+    
+    longGes.delegate=self;
+    
+    [self addGestureRecognizer:longGes];
+    
+    UITapGestureRecognizer *tapGes=[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapGes:)];
+    
+    tapGes.numberOfTapsRequired=2;
+    
+    [self addGestureRecognizer:tapGes];
+#endif
+}
+
+-(void)didMoveToSuperview
+{
+    [super didMoveToSuperview];
+    
+    _originCenter=self.center;
+    
+    [self saveCenterPoint];
+}
+
+-(void) tapGes:(UITapGestureRecognizer*) tap
+{
+    
+    if(_constraintCenterY && _constraintCenterY)
+    {
+        _constraintCenterX.constant=_originCenter.x;
+        _constraintCenterY.constant=_originCenter.y;
+    }
+}
+
+-(void) saveCenterPoint
+{
+    if(_constraintCenterX && _constraintCenterY)
+        _originCenter=CGPointMake(_constraintCenterX.constant, _constraintCenterY.constant);
+}
+
+-(BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+{
+    if(gestureRecognizer==_panGes)
+    {
+        return _longPressed;
+    }
+    
+    return true;
+}
+
+-(void) longGes:(UILongPressGestureRecognizer*) ges
+{
+    _longPressed=!_longPressed;
+   
+}
+
+-(void) panGes:(UIPanGestureRecognizer*) ges
+{
+    static CGPoint UIImageViewDraggablePoint;
+    
+    CGPoint translation=[ges translationInView:self];
+    
+    switch (ges.state) {
+        case UIGestureRecognizerStateChanged:
+            
+            if(_constraintCenterY && _constraintCenterX)
+            {
+                _constraintCenterX.constant=translation.x+UIImageViewDraggablePoint.x;
+                _constraintCenterY.constant=translation.y+UIImageViewDraggablePoint.y;
+            }
+            else
+            {
+                self.center=CGPointMake(translation.x+UIImageViewDraggablePoint.x, translation.y+UIImageViewDraggablePoint.y);
+            }
+            
+            break;
+            
+        case UIGestureRecognizerStateBegan:
+        case UIGestureRecognizerStateEnded:
+        case UIGestureRecognizerStateCancelled:
+        case UIGestureRecognizerStateFailed:
+            
+            if(_constraintCenterX && _constraintCenterY)
+                UIImageViewDraggablePoint=CGPointMake(_constraintCenterX.constant, _constraintCenterY.constant);
+            else
+                UIImageViewDraggablePoint=self.center;
+            
+            break;
+            
+        default:
+            break;
+    }
+}
+
+@end
+
+#pragma mark - UIView+UIImageViewDraggable
+
+@implementation UIView(UIImageViewDraggable)
+
+-(UIImageViewDraggable *)imageViewDraggable
+{
+    return objc_getAssociatedObject(self, "UIImageViewDraggable");
+}
+
+
+- (void) hideAndShowDebugImage
+{
+    UIImageViewDraggable *imgv=objc_getAssociatedObject(self, "UIImageViewDraggable");
+    if (imgv) {
+        BOOL hidden = !imgv.hidden;
+        imgv.hidden = hidden;
+    }
+}
+
+-(void)addDebugImage:(UIImage *)image
+{
+#if DEBUG
+    UIImageViewDraggable *imgv=objc_getAssociatedObject(self, "UIImageViewDraggable");
+    
+    if(imgv)
+    {
+        [imgv removeFromSuperview];
+        objc_setAssociatedObject(self, "UIImageViewDraggable", nil, OBJC_ASSOCIATION_ASSIGN);
+    }
+    
+    imgv=[[UIImageViewDraggable alloc] initWithImage:image];
+    imgv.alpha=0.7f;
+    imgv.frame=CGRectMake(self.center.x, self.center.y, image.size.width, image.size.height);
+    
+    [self addSubview:imgv];
+    objc_setAssociatedObject(self, "UIImageViewDraggable", imgv, OBJC_ASSOCIATION_ASSIGN);
+    
+    imgv.translatesAutoresizingMaskIntoConstraints=false;
+    
+    NSMutableArray *constraints=[NSMutableArray array];
+    NSLayoutConstraint *constraint=nil;
+    
+    constraint=[NSLayoutConstraint constraintWithItem:imgv attribute:NSLayoutAttributeCenterX
+                                            relatedBy:NSLayoutRelationEqual
+                                               toItem:self attribute:NSLayoutAttributeCenterX multiplier:1 constant:0];
+    
+    [constraints addObject:constraint];
+    imgv.constraintCenterX=constraint;
+    
+    constraint=[NSLayoutConstraint constraintWithItem:imgv attribute:NSLayoutAttributeCenterY
+                                            relatedBy:NSLayoutRelationEqual
+                                               toItem:self attribute:NSLayoutAttributeCenterY multiplier:1 constant:0];
+    
+    [constraints addObject:constraint];
+    imgv.constraintCenterY=constraint;
+    
+    constraint=[NSLayoutConstraint constraintWithItem:imgv attribute:NSLayoutAttributeWidth
+                                            relatedBy:NSLayoutRelationEqual
+                                               toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:image.size.width];
+    
+    [constraints addObject:constraint];
+    
+    constraint=[NSLayoutConstraint constraintWithItem:imgv attribute:NSLayoutAttributeHeight
+                                            relatedBy:NSLayoutRelationEqual
+                                               toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:image.size.height];
+    
+    [constraints addObject:constraint];
+    
+    [self addConstraints:constraints];
+    
+    [imgv saveCenterPoint];
+    
+    objc_setAssociatedObject(self, "UIImageViewDraggable", imgv, OBJC_ASSOCIATION_ASSIGN);
+    
+    [self showDebugImageControl];
+#endif
+}
+
+
+-(void)addDebugImageNamed:(NSString *)imageNamed
+{
+    
+    [self addDebugImage:[UIImage imageNamed:imageNamed]];
+}
+
+-(void)showDebugImageControl
+{
+    UIImageView *imgv=objc_getAssociatedObject(self, "UIImageViewDraggable");
+    
+    if(!imgv)
+        return;
+    
+    UIView *buttons=objc_getAssociatedObject(self, "showDebugImageControl");
+    
+    if(buttons)
+    {
+        [buttons removeFromSuperview];
+        objc_setAssociatedObject(self, "showDebugImageControl", nil, OBJC_ASSOCIATION_ASSIGN);
+    }
+    
+    buttons=[[UIView alloc] initWithFrame:CGRectMake(0, 0, 110, 132)];
+    
+    buttons.backgroundColor=[UIColor clearColor];
+    
+    UIButton *btn=[UIButton buttonWithType:UIButtonTypeCustom];
+    
+    btn.frame=CGRectMake(0, 0, 55, 44);
+    [btn setTitle:@"Up" forState:UIControlStateNormal];
+    [btn addTarget:self action:@selector(btnDebugImageUpTouchUpInside:) forControlEvents:UIControlEventTouchUpInside];
+    [btn addTarget:self action:@selector(btnDebugImageUpTouchDown:) forControlEvents:UIControlEventTouchDown];
+    btn.layer.borderColor=[UIColor redColor].CGColor;
+    btn.layer.borderWidth=1;
+    
+    [buttons addSubview:btn];
+    
+    btn=[UIButton buttonWithType:UIButtonTypeCustom];
+    
+    btn.frame=CGRectMake(55, 0, 55, 44);
+    [btn setTitle:@"Down" forState:UIControlStateNormal];
+    [btn addTarget:self action:@selector(btnDebugImageDownTouchUpInside:) forControlEvents:UIControlEventTouchUpInside];
+    [btn addTarget:self action:@selector(btnDebugImageDownTouchDown:) forControlEvents:UIControlEventTouchDown];
+    btn.layer.borderColor=[UIColor redColor].CGColor;
+    btn.layer.borderWidth=1;
+    
+    [buttons addSubview:btn];
+    
+    btn=[UIButton buttonWithType:UIButtonTypeCustom];
+    
+    btn.frame=CGRectMake(0, 44, 55, 44);
+    [btn setTitle:@"Left" forState:UIControlStateNormal];
+    [btn addTarget:self action:@selector(btnDebugImageLeftTouchUpInside:) forControlEvents:UIControlEventTouchUpInside];
+    [btn addTarget:self action:@selector(btnDebugImageLeftTouchDown:) forControlEvents:UIControlEventTouchDown];
+    btn.layer.borderColor=[UIColor redColor].CGColor;
+    btn.layer.borderWidth=1;
+    
+    [buttons addSubview:btn];
+    
+    btn=[UIButton buttonWithType:UIButtonTypeCustom];
+    
+    btn.frame=CGRectMake(55, 44, 55, 44);
+    [btn setTitle:@"Right" forState:UIControlStateNormal];
+    [btn addTarget:self action:@selector(btnDebugImageRightTouchUpInside:) forControlEvents:UIControlEventTouchUpInside];
+    [btn addTarget:self action:@selector(btnDebugImageRightTouchDown:) forControlEvents:UIControlEventTouchDown];
+    btn.layer.borderColor=[UIColor redColor].CGColor;
+    btn.layer.borderWidth=1;
+    
+    [buttons addSubview:btn];
+    
+    btn=[UIButton buttonWithType:UIButtonTypeCustom];
+    
+    btn.frame=CGRectMake(0, 88, 55, 44);
+    [btn setTitle:@"A+" forState:UIControlStateNormal];
+    [btn addTarget:self action:@selector(btnDebugImageAlphaPlusTouchUpInside:) forControlEvents:UIControlEventTouchUpInside];
+    [btn addTarget:self action:@selector(btnDebugImageAlphaPlusTouchDown:) forControlEvents:UIControlEventTouchDown];
+    btn.layer.borderColor=[UIColor redColor].CGColor;
+    btn.layer.borderWidth=1;
+    
+    [buttons addSubview:btn];
+    
+    btn=[UIButton buttonWithType:UIButtonTypeCustom];
+    
+    btn.frame=CGRectMake(55, 88, 55, 44);
+    [btn setTitle:@"A-" forState:UIControlStateNormal];
+    [btn addTarget:self action:@selector(btnDebugImageAlphaSubTouchUpInside:) forControlEvents:UIControlEventTouchUpInside];
+    [btn addTarget:self action:@selector(btnDebugImageAlphaSubTouchDown:) forControlEvents:UIControlEventTouchDown];
+    btn.layer.borderColor=[UIColor redColor].CGColor;
+    btn.layer.borderWidth=1;
+    
+    [buttons addSubview:btn];
+    
+    btn=[UIButton buttonWithType:UIButtonTypeCustom];
+    
+    /*
+    btn.frame=CGRectMake(0, 132, 110, 44);
+    [btn setTitle:@"Tint" forState:UIControlStateNormal];
+    [btn addTarget:self action:@selector(btnDebugImageTintTouchUpInside:) forControlEvents:UIControlEventTouchUpInside];
+    [btn addTarget:self action:@selector(btnDebugImageTintTouchDown:) forControlEvents:UIControlEventTouchDown];
+    btn.layer.borderColor=[UIColor redColor].CGColor;
+    btn.layer.borderWidth=1;
+    
+    [buttons addSubview:btn];
+     */
+    
+    [self insertSubview:buttons aboveSubview:imgv];
+    objc_setAssociatedObject(self, "showDebugImageControl", buttons, OBJC_ASSOCIATION_ASSIGN);
+    
+    buttons.translatesAutoresizingMaskIntoConstraints=false;
+    
+    NSMutableArray *constraints=[NSMutableArray array];
+    NSLayoutConstraint *constraint=nil;
+    
+    constraint=[NSLayoutConstraint constraintWithItem:buttons attribute:NSLayoutAttributeTrailing
+                                            relatedBy:NSLayoutRelationEqual
+                                               toItem:self attribute:NSLayoutAttributeTrailing multiplier:1 constant:0];
+    
+    [constraints addObject:constraint];
+    
+    constraint=[NSLayoutConstraint constraintWithItem:buttons attribute:NSLayoutAttributeCenterY
+                                            relatedBy:NSLayoutRelationEqual
+                                               toItem:self attribute:NSLayoutAttributeCenterY multiplier:1 constant:0];
+    
+    [constraints addObject:constraint];
+    
+    constraint=[NSLayoutConstraint constraintWithItem:buttons attribute:NSLayoutAttributeHeight
+                                            relatedBy:NSLayoutRelationEqual
+                                               toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:44*4];
+    
+    [constraints addObject:constraint];
+    
+    constraint=[NSLayoutConstraint constraintWithItem:buttons attribute:NSLayoutAttributeWidth
+                                            relatedBy:NSLayoutRelationEqual
+                                               toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:110];
+    
+    [constraints addObject:constraint];
+    
+    [self addConstraints:constraints];
+}
+
+- (void)hideDebugImageControl{
+    
+    UIView *view =  objc_getAssociatedObject(self, "showDebugImageControl");
+    view.hidden = true;
+
+}
+
+-(NSTimer*) timerTouchUpRepeat
+{
+    return objc_getAssociatedObject(self, "timerTouchUpRepeat");
+}
+
+-(void) runTimer:(id) sender
+{
+    void(^block)()=objc_getAssociatedObject(self, "timerTouchUpRepeatBlock");
+    
+    if(block)
+        block();
+}
+
+-(NSTimer*) makeTimerTouchUpRepeatBlock:(void(^)()) block
+{
+    NSTimer *timer=[self timerTouchUpRepeat];
+    
+    if(!timer)
+    {
+        NSTimer *timer=[NSTimer timerWithTimeInterval:0.1f target:self selector:@selector(runTimer:) userInfo:nil repeats:true];
+        [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+        objc_setAssociatedObject(self, "timerTouchUpRepeat", timer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    
+    objc_setAssociatedObject(self, "timerTouchUpRepeatBlock", block, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    
+    return timer;
+}
+
+-(void) destroyTimerTouchUpRepeat
+{
+    NSTimer *timer=[self timerTouchUpRepeat];
+    
+    if(timer)
+    {
+        [timer invalidate];
+        objc_setAssociatedObject(self, "timerTouchUpRepeat", nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    
+    objc_setAssociatedObject(self, "timerTouchUpRepeatBlock", nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+-(void) btnDebugImageUpTouchDown:(id) sender
+{
+    __weak UIView *wSelf=self;
+    [self makeTimerTouchUpRepeatBlock:^{
+        
+        UIImageViewDraggable *imgv=objc_getAssociatedObject(wSelf, "UIImageViewDraggable");
+        imgv.constraintCenterY.constant-=1;
+        
+    }];
+}
+
+-(void) btnDebugImageUpTouchUpInside:(id) sender
+{
+    
+    UIImageViewDraggable *imgv=objc_getAssociatedObject(self, "UIImageViewDraggable");
+    imgv.constraintCenterY.constant--;
+}
+
+-(void) btnDebugImageDownTouchDown:(id) sender
+{
+    __weak UIView *wSelf=self;
+    
+    [self makeTimerTouchUpRepeatBlock:^{
+        
+        UIImageViewDraggable *imgv=objc_getAssociatedObject(wSelf, "UIImageViewDraggable");
+        imgv.constraintCenterY.constant+=1;
+
+    }];
+}
+
+-(void) btnDebugImageDownTouchUpInside:(id) sender
+{
+    
+    UIImageViewDraggable *imgv=objc_getAssociatedObject(self, "UIImageViewDraggable");
+    
+    imgv.constraintCenterY.constant++;
+}
+
+-(void) btnDebugImageLeftTouchDown:(id) sender
+{
+    __weak UIView *wSelf=self;
+    
+    [self makeTimerTouchUpRepeatBlock:^{
+        
+        UIImageViewDraggable *imgv=objc_getAssociatedObject(wSelf, "UIImageViewDraggable");
+        imgv.constraintCenterX.constant-=1;
+        
+    }];
+}
+
+-(void) btnDebugImageLeftTouchUpInside:(id) sender
+{
+    
+    UIImageViewDraggable *imgv=objc_getAssociatedObject(self, "UIImageViewDraggable");
+    imgv.constraintCenterX.constant--;
+}
+
+-(void) btnDebugImageRightTouchDown:(id) sender
+{
+    __weak UIView *wSelf=self;
+    
+    [self makeTimerTouchUpRepeatBlock:^{
+        
+        UIImageViewDraggable *imgv=objc_getAssociatedObject(wSelf, "UIImageViewDraggable");
+        imgv.constraintCenterX.constant+=1;
+        
+    }];
+}
+
+-(void) btnDebugImageRightTouchUpInside:(id) sender
+{
+    
+    UIImageViewDraggable *imgv=objc_getAssociatedObject(self, "UIImageViewDraggable");
+    imgv.constraintCenterX.constant++;
+}
+
+-(void) btnDebugImageAlphaPlusTouchDown:(id) sender
+{
+    __weak UIView *wSelf=self;
+    
+    [self makeTimerTouchUpRepeatBlock:^{
+        
+        UIImageViewDraggable *imgv=objc_getAssociatedObject(wSelf, "UIImageViewDraggable");
+        imgv.alpha=MIN(1.f, imgv.alpha+0.1f);
+        
+    }];
+}
+
+-(void) btnDebugImageAlphaPlusTouchUpInside:(id) sender
+{
+    
+    UIImageViewDraggable *imgv=objc_getAssociatedObject(self, "UIImageViewDraggable");
+    imgv.alpha=MIN(1.f, imgv.alpha+0.1f);
+}
+
+-(void) btnDebugImageAlphaSubTouchDown:(id) sender
+{
+    __weak UIView *wSelf=self;
+    
+    [self makeTimerTouchUpRepeatBlock:^{
+        
+        UIImageViewDraggable *imgv=objc_getAssociatedObject(wSelf, "UIImageViewDraggable");
+        imgv.alpha=MAX(0.1f, imgv.alpha-0.1f);
+        
+    }];
+}
+
+-(void) btnDebugImageAlphaSubTouchUpInside:(id) sender
+{
+    
+    UIImageViewDraggable *imgv=objc_getAssociatedObject(self, "UIImageViewDraggable");
+    imgv.alpha=MAX(0.1f, imgv.alpha-0.1f);
+}
+
+-(NSArray*) tintColors
+{
+    return @[[UIColor whiteColor], [UIColor blackColor], [NSNull null]];
+}
+
+-(void) changeTinColor
+{
+    UIColor *color=[self tintColors][self.tag];
+    
+    if([color isKindOfClass:[NSNull class]])
+    {
+        self.imageViewDraggable.image=[self.imageViewDraggable.image imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    }
+    else
+    {
+        self.imageViewDraggable.image=[self.imageViewDraggable.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        self.tintColor=color;
+    }
+    
+    self.tag++;
+    
+    if(self.tag>=[self tintColors].count)
+        self.tag=0;
+}
+
+-(void) btnDebugImageTintTouchDown:(id) sender
+{
+    __weak UIView *wSelf=self;
+    
+    [self makeTimerTouchUpRepeatBlock:^{
+        [wSelf changeTinColor];
+    }];
+}
+
+-(void) btnDebugImageTintTouchUpInside:(id) sender
+{
+    [self destroyTimerTouchUpRepeat];
+    
+    [self changeTinColor];
+}
+
+@end

@@ -1,0 +1,13 @@
+//
+//  IndexQuestionDTO.m
+//  
+//
+//  Created by Vu Phan on 3/27/16.
+//
+//
+
+#import "IndexQuestionDTO.h"
+
+@implementation IndexQuestionDTO
+
+@end

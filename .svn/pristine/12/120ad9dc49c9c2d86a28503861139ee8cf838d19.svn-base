@@ -1,0 +1,57 @@
+//
+//  FeatureRepository.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 8/16/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+
+class FeatureRepository: NSObject {
+
+    func getListFeature(success: DataCallBackSuccess, error: DataCallBackError) {
+        
+        let lsFeature: NSMutableArray = NSMutableArray()
+        
+        let ft = Feature()
+        ft.name = "Flappy bird"
+        ft.category = ANIMALS
+        ft.price = "1$"
+        
+        let ft1 = Feature()
+        ft1.name = "TShirt"
+        ft1.category = CLOTHING
+        ft1.price = "1$"
+        
+        let ft2 = Feature()
+        ft2.name = "Bizza"
+        ft2.category = FOOD
+        ft2.price = "1$"
+        
+        let ft3 = Feature()
+        ft3.name = "Elephen"
+        ft3.category = ANIMALS
+        ft3.price = "1$"
+        
+        let ft4 = Feature()
+        ft4.name = "Egg"
+        ft4.category = FOOD
+        ft4.price = "1$"
+        
+        let ft5 = Feature()
+        ft5.name = "Cat"
+        ft5.category = ANIMALS
+        ft5.price = "1$"
+        
+        lsFeature.addObject(ft)
+        lsFeature.addObject(ft1)
+        lsFeature.addObject(ft2)
+        lsFeature.addObject(ft3)
+        lsFeature.addObject(ft4)
+        lsFeature.addObject(ft5)
+       
+        
+        success(lsFeature)
+    }
+}

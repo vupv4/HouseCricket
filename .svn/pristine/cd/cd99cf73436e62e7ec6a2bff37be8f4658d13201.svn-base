@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/folder_data_item_select_layout"
+    style="@style/RowItemStyle"
+    android:layout_marginLeft="@dimen/list_view_folder_padding"
+    android:layout_marginRight="@dimen/list_view_folder_padding"
+    android:background="@drawable/listview_folder_item_bg"
+    >
+    <TextView
+        android:id="@+id/button_main_menu"
+        style="@style/FolderItemText"
+        />
+</RelativeLayout>

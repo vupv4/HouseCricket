@@ -1,0 +1,12 @@
+//
+//  StudyOfflineVC.h
+//  
+//
+//  Created by Vu Phan on 3/11/16.
+//
+//
+
+#import "BaseVC.h"
+
+@interface StudyOfflineVC : BaseVC
+@end

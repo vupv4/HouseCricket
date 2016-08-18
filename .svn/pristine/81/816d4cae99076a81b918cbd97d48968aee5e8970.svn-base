@@ -1,0 +1,245 @@
+//
+//  ExamOfflineVC.m
+//  
+//
+//  Created by Vu Phan on 3/18/16.
+//
+//
+
+#import "ExamOfflineVC.h"
+#import "StudyOfflineVC.h"
+#import "FileUtils.h"
+#import "QuestionCell.h"
+#import "Question.h"
+#import "NSStringUtils.h"
+#import "StringDefine.h"
+
+@interface ExamOfflineVC () <UIAlertViewDelegate,  UITableViewDataSource, UITableViewDelegate, RadioCellDelegate>{
+
+    int secondsLeft, minutes, seconds;
+    BOOL isSubmited;
+    
+    NSTimer *timerForPlay;
+    NSMutableArray* lsQuestion;
+
+}
+
+@property (weak, nonatomic) IBOutlet UITableView *tbvQuestion;
+@property (weak, nonatomic) IBOutlet UIButton *btnSubmit;
+@property (weak, nonatomic) IBOutlet UIButton *btnFinish;
+
+@end
+
+@implementation ExamOfflineVC
+
+- (void)viewDidLoad {
+    
+    [super viewDidLoad];
+
+    [self countUpTimer];
+    [self setInitView];
+    [self getListQuestionFrom:self.nameFile];
+}
+
+- (void) setInitView {
+    self.tbvQuestion.dataSource = self;
+    self.tbvQuestion.delegate = self;
+    self.tbvQuestion.separatorColor = [UIColor clearColor];
+    
+    lsQuestion = [[NSMutableArray alloc]init];
+    isSubmited = false;
+}
+
+#pragma mark - process on view
+// show answer after submit result
+- (void) showAnswer {
+    [self.btnSubmit setHidden:YES];
+    [self.btnFinish setHidden:NO];
+    [self.tbvQuestion reloadData];
+}
+
+// count num of correct answer
+- (int) countTotalCorrectAns {
+    
+    int totalCorrectAns = 0;
+    
+    for (Question* q in lsQuestion) {
+        
+        if (q.selectedAnswer == (q.correctAnswer +1)) { // +1 vì dữ liệu trả về AnsA == 0 trong khi define AnsA == 1
+            totalCorrectAns++;
+        }
+    }
+    
+    return totalCorrectAns;
+}
+
+// get list question and answers
+- (void) getListQuestionFrom:(NSString*) name {
+    
+    NSMutableArray *lsData ;
+    
+    if (self.isOnlineMode) {
+        lsData = [NSJSONSerialization JSONObjectWithData:[FileUtils getContentFileFromPath:name]
+                                                 options:0
+                                                   error:nil];
+    } else {
+        lsData = [NSJSONSerialization JSONObjectWithData:[FileUtils getContentFileInBundleWithName:name extension:@"json"]
+                                                 options:0
+                                                   error:nil];
+    }
+    
+    for (NSDictionary *dic in lsData) {
+        
+        Question *dto = [Question new];
+        
+        if ([NSStringUtils isHTMLFormat:[dic objectForKey:@"questionTitle"]]) {
+            dto.questionTitle = [NSStringUtils getAttributedStringFrom:[dic objectForKey:@"questionTitle"]];
+        }
+        else {
+            dto.questionTitle = [dic objectForKey:@"questionTitle"];
+        }
+        
+        dto.category = [dic objectForKey:@"category"];
+        dto.answer = [super convertNSStringToAttributed:[dic objectForKey:@"anwers"]];
+        dto.correctAnswer = [[dic objectForKey:@"correctAnswer"] integerValue];
+
+        [lsQuestion addObject:dto];
+    }
+}
+
+#pragma mark - Radio Delegate
+-(void) myRadioCellDelegateDidCheckRadioButton:(UITableViewCell*)checkedCell {
+    [self.tbvQuestion reloadData];
+}
+
+#pragma mark - Tableview delegate
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
+    return [lsQuestion count];
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    Question* data = [lsQuestion objectAtIndex:indexPath.row];
+
+    int height = 0;
+    
+    switch (data.answer.count) {
+        case 1:
+            height = HEIGH_WITH_ONE_ANSWER;
+            break;
+        case 2:
+            height = HEIGH_WITH_TWO_ANSWER;
+            break;
+        case 3:
+            height = HEIGH_WITH_THREE_ANSWER;
+            break;
+        case 4:
+            height = HEIGH_WITH_FOUR_ANSWER;
+            break;
+        default:
+            break;
+    }
+    
+    if (![NSStringUtils isNullString:data.category]) {
+        height+= HEIGH_CATEGORY;
+    }
+    
+    return height;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    static NSString *questionCell = @"QuestionCell";
+    
+    // Create Cell
+    QuestionCell *cell = (QuestionCell *)[tableView dequeueReusableCellWithIdentifier:questionCell];
+    
+    if (cell == nil)
+    {
+        NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"QuestionCell" owner:self options:nil];
+        cell = [nib objectAtIndex:0];
+    }
+    
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    cell.delegate = self;
+    cell.isSubmited = isSubmited;
+    cell.data = [lsQuestion objectAtIndex:indexPath.row];
+    [cell loadCell];
+    
+    return cell;
+}
+
+#pragma mark - Alert view delegate
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    [self showAnswer];
+}
+
+#pragma mark - Action
+- (void) back:(UIBarButtonItem *)sender  {
+    [super back:sender];
+}
+
+- (IBAction)finishExam:(id)sender {
+    [super back:sender];
+}
+
+- (IBAction)submit:(id)sender {
+    
+    isSubmited = true;
+    [timerForPlay invalidate];
+    
+    // tu iOS 8.0 apple stop to support UIAlertView instead of UIAlertController
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] >=8.0)
+    {
+        UIAlertController *alertController = [UIAlertController
+                                              alertControllerWithTitle:dialog_result_title
+                                              message:[NSString stringWithFormat:dialog_result_content,[self countTotalCorrectAns], (unsigned long)[lsQuestion count], minutes, seconds]
+                                              preferredStyle:UIAlertControllerStyleAlert];
+        
+        
+        UIAlertAction *showAns = [UIAlertAction
+                                  actionWithTitle:dialog_result_button
+                                  style:UIAlertActionStyleDefault
+                                  handler:^(UIAlertAction *action)
+                                  {
+                                      [self showAnswer];
+                                  }];
+        
+        [alertController addAction:showAns];
+        [self presentViewController:alertController animated:NO completion:nil];
+        
+    }
+    else
+    {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:dialog_result_title
+                                                       message:[NSString stringWithFormat:dialog_result_content,
+                                                                [self countTotalCorrectAns], (unsigned long)[lsQuestion count], minutes, seconds]
+                                                      delegate:self
+                                             cancelButtonTitle:dialog_result_button
+                                             otherButtonTitles:nil];
+        [alert show];
+    }
+}
+
+#pragma mark - Count up timer
+
+- (void)updateCounter:(NSTimer *)theTimer
+{
+    secondsLeft ++ ;
+    minutes = (secondsLeft % 3600) / 60;
+    seconds = (secondsLeft %3600) % 60;
+    self.navigationItem.title = [NSString stringWithFormat:@"%02d:%02d",  minutes, seconds];
+}
+
+-(void)countUpTimer
+{
+    secondsLeft = 0;
+    minutes = seconds = 0;
+    if([timerForPlay isValid]) {
+        [timerForPlay invalidate];
+    }
+    
+    timerForPlay = [NSTimer scheduledTimerWithTimeInterval:1.0f target:self selector:@selector(updateCounter:) userInfo:nil repeats:YES];
+}
+@end

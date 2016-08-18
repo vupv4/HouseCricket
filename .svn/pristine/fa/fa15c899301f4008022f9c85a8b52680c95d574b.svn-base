@@ -1,0 +1,31 @@
+//
+//  BaseVC.h
+//  
+//
+//  Created by Vu Phan on 3/11/16.
+//
+//
+
+#import "ViewController.h"
+#import "MenuItemDTO.h"
+#import "AppConstant.h"
+#import "FileUtils.h"
+#import "MenusCell.h"
+
+@interface BaseVC : UIViewController
+
+- (void) back:(UIBarButtonItem *)sender;
+- (BOOL) isFolder:(NSMutableArray*) child ;
+- (void) setNaviTitle:(NSString*) title;
+- (void) setBorderFor:(UITextView*) lb WithColor:(CGColorRef) color andBorderBold:(float) bold ;
+- (void) setBorderForLabel:(UILabel *) lb WithColor:(CGColorRef) color andBorderBold:(float) bold;
+- (void) downloadFileAtURL:(NSString*) stringURL withName:(NSString*) name;
+
+- (NSMutableArray*) convertNSStringToAttributed:(NSMutableArray*) arr ;
+- (NSDictionary*) getJsonFileContent:(NSString*) name ;
+- (NSString*) getFullNameFile:(NSString*) fileName fromStack:(NSMutableArray*) lsStack;
+- (NSString*) getURLDownloadFileWithName:(NSString*) nameFile inStack:(NSMutableArray*) lsStack;
+- (NSString*) getPathFileInDocument:(NSString*) name ;
+- (MenuItemDTO*) getMenuItemFromDic:(NSDictionary*) dicMenu;
+
+@end

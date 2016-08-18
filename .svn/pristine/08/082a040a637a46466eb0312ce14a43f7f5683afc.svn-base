@@ -1,0 +1,48 @@
+//
+//  UserRepository.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 4/5/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+import Alamofire
+
+class UserRepository: NSObject {
+    
+    // goi API login from server
+    func doLogin(username:NSString, pwd:NSString, success:DataCallBackSuccess, errors:DataCallBackError ) {
+        
+        let loginRequest : LoginRequest = LoginRequest()
+        loginRequest.username = username
+        loginRequest.password = pwd
+        
+        Alamofire.request(.POST, LOGIN_API_HTTPS, parameters: loginRequest.toDict())
+            .validate(contentType: [JSON_TYPE])
+            .responseJSON { response in
+                
+                switch response.result {
+                case .Success:
+                    
+                    if let jsonResult = response.result.value as? Dictionary<NSString, AnyObject>
+                    {
+                        let response:LoginResponse = LoginResponse()
+                        
+                        response.branch = jsonResult["branch"] as? NSString
+                        response.companyName = jsonResult["companyName"] as? NSString
+                        response.message = jsonResult["message"] as? NSString
+                        response.statuscode = jsonResult["statuscode"] as? Int
+                        
+                        success(response)
+                    }
+                    else {
+                        NSLog("Error when parse response json to Object")
+                    }
+                case .Failure(let err):
+                    errors(err)
+                    
+            }
+        }
+    }
+}

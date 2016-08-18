@@ -1,0 +1,94 @@
+//
+//  FeatureTabView.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 8/16/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+import Foundation
+
+class FeatureTabView: BaseVC, IBaseView, UITableViewDelegate, UITableViewDataSource  {
+    
+    var categories = ["", "Best Flash Cards"]
+    var lsFeature:NSMutableArray!
+    var presenter:FeaturePresenter!
+    
+    let NUM_ITEM:Int = 5
+    
+    @IBOutlet weak var tbvListFeature: UITableView!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        self.title = TEXT_FEATURE
+        tbvListFeature.delegate = self
+        tbvListFeature.dataSource = self
+        // Get list all feature
+        presenter = FeaturePresenter(delegate: self)
+        presenter.getListFeature()
+    }
+    
+    //TODO: Get data from model
+    func doOnSuccess(result: AnyObject?){
+        lsFeature = result as! NSMutableArray
+    }
+    
+    func doOnError(err: NSError?){
+        print("Error when get features!!!")
+    }
+    
+    //TODO: Cofiguration Sesson
+    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return categories[section]
+    }
+    
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        return categories.count
+    }
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
+        if section == 0 {
+            return 1 // first section only one row
+        } else {
+            return lsFeature.count / NUM_ITEM
+        }
+    }
+    
+    //TODO: Cofiguration Cell
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return 150
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        let identifier = "cell"
+        var cell: CategoryRow! = tableView.dequeueReusableCellWithIdentifier(identifier) as? CategoryRow
+        
+        if cell == nil {
+            tableView.registerNib(UINib(nibName: "CategoryRow", bundle: nil), forCellReuseIdentifier: identifier)
+            cell = tableView.dequeueReusableCellWithIdentifier(identifier) as? CategoryRow
+        }
+        
+        cell.lsItems = getListItemInRow(indexPath.row)
+        
+        return cell
+    }
+    
+     // Get list item in row
+    func getListItemInRow(row:Int) -> NSMutableArray {
+        
+        let lsItems = NSMutableArray()
+        
+        for index in (row * NUM_ITEM)...((row * NUM_ITEM) + NUM_ITEM - 1) {
+            if index <= (lsFeature.count - 1) {
+                lsItems.addObject(lsFeature.objectAtIndex(index))
+            }
+        }
+        
+        return lsItems
+    }
+}
+

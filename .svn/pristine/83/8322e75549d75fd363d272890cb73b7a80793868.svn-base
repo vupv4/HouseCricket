@@ -1,0 +1,45 @@
+//
+//  Header.h
+//  TemplateExample
+//
+//  Created by Vu Phan on 3/9/16.
+//  Copyright (c) 2016 Viettel. All rights reserved.
+//
+#define app_name      @"English for all level"
+#define loading      @"Loading"
+#define submitBtn      @"Submit"
+#define finish      @"Finish"
+#define dialog_result_title      @"This is result"
+#define dialog_result_content   @"Correct: %d/%lu \n Time test: %02d:%02d"
+#define dialog_result_button      @"Show Answers"
+#define duration_time_format    @"2d:%2d"
+#define delay_backkey_message      @"Please click BACK again to exit"
+#define admob_id      @"ca-app-pub-5633074162966218/1686530286"
+#define admob_id_full_screen      @"ca-app-pub-5633074162966218/8706421088"
+#define downloading_file      @"Downloading file"
+#define can_not_read_file      @"Can not read file."
+#define download_fail_message      @"Can not download the file from server. Please check your internet connection."
+
+
+
+#define sign_in_failed      @"Failed to sign in. Please check your network connection and try again."
+#define app_misconfigured      @"The application is incorrectly configured. Check that the package name and signing certificate match the client ID created in Developer Console. Also, if the application is not yet published, check that the account you are trying to sign in with is listed as a tester account. See logs for more information."
+#define license_failed      @"License check failed."
+#define unknown_error      @"Unknown error."
+
+#define gamehelper_sign_in_failed      @"Failed to sign in. Please check your network connection and try again."
+#define gamehelper_app_misconfigured      @"The application is incorrectly configured. Check that the package name and signing certificate match the client ID created in Developer Console. Also, if the application is not yet published, check that the account you are trying to sign in with is listed as a tester account. See logs for more information."
+#define gamehelper_license_failed      @"License check failed."
+#define gamehelper_unknown_error      @"Unknown error."
+
+#define app_id      @"458048073185"
+#define client_id      @"200225838762-e5vqjgsda1ls0ift34tmi5tmu68n5afl.apps.googleusercontent.com"
+#define package_name      @"voon.truongvan.english_for_all_level"
+#define leaderboard_hight_score      @"CgkI4durrqoNEAIQAQ"
+
+#define achievement_win_5_questions_in_a_row      @"CgkI4durrqoNEAIQAg"
+#define achievement_win_10_questions_in_a_row      @"CgkI4durrqoNEAIQAw"
+#define achievement_win_15_questions_in_a_row      @"CgkI4durrqoNEAIQBA"
+#define achievement_win_20_questions_in_a_row      @"CgkI4durrqoNEAIQBQ"
+#define achievement_win_30_questions_in_a_row      @"CgkI4durrqoNEAIQBg"
+#define achievement_win_50_questions_in_a_row      @"CgkI4durrqoNEAIQBw"

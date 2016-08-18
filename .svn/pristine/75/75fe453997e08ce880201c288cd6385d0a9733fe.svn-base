@@ -1,0 +1,23 @@
+//
+//  UserRepository.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 4/5/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+
+class UserRepository: NSObject {
+    
+    // goi API login from server
+    func doLogin(username:NSString, pwd:NSString, success:DataCallBackSuccess, error:DataCallBackError ) {
+        
+        let loginRequest : LoginRequest = LoginRequest()
+        
+        loginRequest.username = "vupv4@viettel.com.vn"
+        loginRequest.password = "123456a@"
+        
+        success(nil)
+    }
+}

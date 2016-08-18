@@ -1,0 +1,37 @@
+//
+//  UserRepository.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 4/5/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+import Alamofire
+
+class UserRepository: NSObject {
+    
+    // goi API login from server
+    func doLogin(username:NSString, pwd:NSString, success:DataCallBackSuccess, errors:DataCallBackError ) {
+        
+        let loginRequest : LoginRequest = LoginRequest()
+        loginRequest.username = "vupv4@viettel.com.vn"
+        loginRequest.password = "123456a@"
+        
+        Alamofire.request(.POST, LOGIN_API_HTTP, parameters: ["request": loginRequest])
+            .validate(contentType: ["application/json"])
+            .responseJSON { response in
+                
+                print("response.response?.statusCode",response.response?.statusCode)
+                
+                switch response.result {
+                case .Success:
+                    success(response.result.value)
+                    
+                case .Failure(let err):
+                    errors(err)
+                    
+            }
+        }
+    }
+}

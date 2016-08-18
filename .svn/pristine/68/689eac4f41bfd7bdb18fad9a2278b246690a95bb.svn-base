@@ -1,0 +1,48 @@
+//
+//  FileUtils.m
+//  
+//
+//  Created by Vu Phan on 3/18/16.
+//
+//
+
+#import "FileUtils.h"
+
+@implementation FileUtils
+
+// Read file in main Bundle from Name and extenstion tag
++ (NSData*) getContentFileInBundleWithName:(NSString*) name extension:(NSString*) tag {
+    
+    NSString* path = [[NSBundle mainBundle] pathForResource:name ofType:tag];
+    NSString* content = [NSString stringWithContentsOfFile:path
+                                                  encoding:NSUTF8StringEncoding
+                                                     error:NULL];
+    
+    return [content dataUsingEncoding:NSUTF8StringEncoding];
+}
+
++ (NSData*) getContentFileFromPath:(NSString*) path {
+    
+    NSString* content = [NSString stringWithContentsOfFile:path
+                                                  encoding:NSUTF8StringEncoding
+                                                     error:NULL];
+    
+    return [content dataUsingEncoding:NSUTF8StringEncoding];
+}
+
++ (BOOL) isExistFile:(NSString*) name {
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString  *documentsDirectory = [paths objectAtIndex:0];
+    NSString *pathForFile = [documentsDirectory stringByAppendingPathComponent:name];
+
+    
+    if ([fileManager fileExistsAtPath:pathForFile]){
+        return  true;
+    }
+    
+    return false;
+}
+@end

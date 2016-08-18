@@ -1,0 +1,200 @@
+//
+//  BaseVC.m
+//  
+//
+//  Created by Vu Phan on 3/11/16.
+//
+//
+
+#import "BaseVC.h"
+#import "NSStringUtils.h"
+
+@interface BaseVC ()
+
+@end
+
+@implementation BaseVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setUpNavigation];
+}
+
+#pragma mark - Set up Navigation bar method
+// set back button and color back ground navigation bar
+- (void) setUpNavigation {
+    [self.navigationController.navigationBar setHidden:NO];
+    
+    UIBarButtonItem *newBackButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"back_button.png"]
+                                                                      style:UIBarButtonItemStyleDone
+                                                                     target:self
+                                                                     action:@selector(back:)];
+    self.navigationItem.leftBarButtonItem=newBackButton;
+    
+    if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_6_1) {
+        // iOS 6.1 or earlier
+        self.navigationController.navigationBar.tintColor = [UIColor colorWithRed:0.4 green:0.76 blue:1.0 alpha:0.5];
+    } else {
+        // iOS 7.0 or later
+        self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.4 green:0.76 blue:1.0 alpha:0.5];
+        self.navigationController.navigationBar.translucent = NO;
+    }
+}
+
+// Set Title navigation bar
+- (void) setNaviTitle:(NSString*) title {
+    self.navigationItem.title = [title uppercaseString];
+}
+
+
+// Get Path of file in document
+- (NSString*) getPathFileInDocument:(NSString*) name {
+    
+    NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString  *documentsDirectory = [paths objectAtIndex:0];
+    NSString *pathForFile = [documentsDirectory stringByAppendingPathComponent:name];
+    
+    return pathForFile;
+}
+
+#pragma mark - Common Method
+- (void) setBorderFor:(UITextView *) tv WithColor:(CGColorRef) color andBorderBold:(float) bold {
+    tv.layer.borderColor = color;
+    tv.layer.borderWidth = bold;
+    tv.layer.cornerRadius = 6;
+}
+
+- (void) setBorderForLabel:(UILabel *) lb WithColor:(CGColorRef) color andBorderBold:(float) bold {
+    lb.layer.borderColor = color;
+    lb.layer.borderWidth = bold;
+    lb.layer.cornerRadius = 6;
+}
+
+- (void) back:(UIBarButtonItem *)sender {
+    [self.navigationController popViewControllerAnimated:NO];
+}
+
+#pragma mark - Menu Screens
+/* Check children is Folder or File
+ * @Author: Vu phan
+ * @params: NSMutableArray of children
+ * @return: BOOL
+ */
+- (BOOL) isFolder:(NSMutableArray*) child {
+    
+    if (child !=nil && ![child isKindOfClass:[NSNull class]]){
+        return true;
+    }
+    
+    return false;
+}
+
+/* Get menu item property
+ * @Author: Vu phan
+ * @params: NSDictionary
+ * @return: MenuItemDTO
+ */
+- (MenuItemDTO*) getMenuItemFromDic:(NSDictionary*) dicMenu {
+    
+    MenuItemDTO *dto = [[MenuItemDTO alloc]init];
+    dto.fileName = [dicMenu objectForKey:@"fileName"];
+    dto.display = [dicMenu objectForKey:@"display"];
+    dto.children = [dicMenu objectForKey:@"children"];
+    
+    return dto;
+}
+
+// Read content json file as a NSDictionary
+- (NSDictionary*) getJsonFileContent:(NSString*) name {
+    NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString  *documentsDirectory = [paths objectAtIndex:0];
+    
+    // Read file from document Folder
+    NSString *jsonPath = [documentsDirectory stringByAppendingPathComponent:name];
+    NSData *data = [FileUtils getContentFileFromPath:jsonPath];
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data
+                                                         options:0
+                                                           error:nil];//response object is your response from server as NSData
+    
+    return json;
+}
+
+// Download file and save at Document local folder
+- (void) downloadFileAtURL:(NSString*) stringURL withName:(NSString*) name
+{
+    if (![FileUtils isExistFile:name])
+    {
+        NSURL  *url = [NSURL URLWithString:stringURL];
+        NSData *urlData = [NSData dataWithContentsOfURL:url];
+        
+        NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString  *documentsDirectory = [paths objectAtIndex:0];
+        
+        if ( urlData )
+        {
+            NSString  *filePath = [NSString stringWithFormat:@"%@/%@", documentsDirectory, name];
+            [urlData writeToFile:filePath atomically:YES];
+        }
+        else {
+            NSLog(@"Co loi trong qua trinh tai file");
+        }
+    }
+    else {
+        NSLog(@"File %@ is downloaded", name);
+    }
+}
+
+// Get full name file txt from stack menu
+- (NSString*) getFullNameFile:(NSString*) fileName fromStack:(NSMutableArray*) lsStack{
+    
+    NSString* nameFull = @"";
+    
+    for (int i = 1 ; i < [lsStack count]; i++){
+        MenuItemDTO* dto = [lsStack objectAtIndex:i];
+        nameFull = [NSString stringWithFormat:@"%@%@.", nameFull, dto.fileName];
+    }
+    
+    nameFull = [NSString stringWithFormat:@"%@%@", nameFull, [fileName componentsSeparatedByString:@"."][0]];
+    
+    NSLog(@"openning %@", nameFull);
+    
+    return nameFull;
+}
+
+
+// Get url for download examination test eg://http:/doanit.com/english4all/examination/LEVEL_A/find_the_mistakes/lesson_01.txt
+- (NSString*) getURLDownloadFileWithName:(NSString*) nameFile inStack:(NSMutableArray*) lsStack {
+    
+    NSString* urlFile = SERVER_BASE_PATH; //http:/doanit.com/english4all/
+    
+    for (int i = 0 ; i < [lsStack count]; i++){
+        MenuItemDTO* dto = [lsStack objectAtIndex:i];
+        urlFile = [NSString stringWithFormat:@"%@%@/", urlFile, dto.fileName];
+    }
+    
+    urlFile = [NSString stringWithFormat:@"%@%@", urlFile, nameFile];
+    
+    return urlFile;
+}
+
+#pragma mark - Exam Screens
+// convert NSString to NSAttributedString
+- (NSMutableArray*) convertNSStringToAttributed:(NSMutableArray*) arr {
+    
+    NSMutableArray* newAtributedArr = [NSMutableArray new];
+    NSAttributedString * aStr;
+    
+    for (NSString *str in arr) {
+        
+        if ([NSStringUtils isHTMLFormat:str]) {
+            aStr = [NSStringUtils getAttributedStringFrom:str];
+            [newAtributedArr addObject:aStr];
+        } else {
+            [newAtributedArr addObject:str];
+        }
+    }
+    
+    return newAtributedArr;
+    
+}
+@end

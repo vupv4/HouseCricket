@@ -1,0 +1,264 @@
+//
+//  RangkingVC.m
+//  
+//
+//  Created by Vu Phan on 3/20/16.
+//
+//
+
+#import "RangkingVC.h"
+#import "Question.h"
+#import "NSStringUtils.h"
+#import "IndexQuestionDTO.h"
+
+@interface RangkingVC (){
+
+    int seconds;
+    int questionIndex;
+    NSTimer *timerForPlay;
+    Question *randQuestion;
+}
+
+@property (weak, nonatomic) IBOutlet UIButton *btnLeaderBoard;
+@property (weak, nonatomic) IBOutlet UIButton *btnAchive;
+@property (weak, nonatomic) IBOutlet UIButton *btnReplay;
+
+@property (weak, nonatomic) IBOutlet UITextView *tvQuestion;
+@property (weak, nonatomic) IBOutlet UITextView *tvAnsA;
+@property (weak, nonatomic) IBOutlet UITextView *tvAnsB;
+@property (weak, nonatomic) IBOutlet UITextView *tvAnsC;
+@property (weak, nonatomic) IBOutlet UITextView *tvAnsD;
+@property (weak, nonatomic) IBOutlet UILabel *lbTimmer;
+
+
+
+
+@end
+
+@implementation RangkingVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    questionIndex = 1;
+    self.navigationItem.title = [NSString stringWithFormat:@"QUESTION %d", questionIndex];
+    
+    //set border for answers
+    [super setBorderFor:self.tvAnsA WithColor:[UIColor whiteColor].CGColor andBorderBold:1.0];
+    [super setBorderFor:self.tvAnsB WithColor:[UIColor whiteColor].CGColor andBorderBold:1.0];
+    [super setBorderFor:self.tvAnsC WithColor:[UIColor whiteColor].CGColor andBorderBold:1.0];
+    [super setBorderFor:self.tvAnsD WithColor:[UIColor whiteColor].CGColor andBorderBold:1.0];
+    [super setBorderForLabel:self.lbTimmer WithColor:[UIColor whiteColor].CGColor andBorderBold:1.0];
+
+    randQuestion = [self getRandomQuestion];
+    [NSStringUtils setTextFor:self.tvQuestion withString:randQuestion.questionTitle];
+    
+    switch (randQuestion.answer.count) {
+            
+        case QUESTION_WITH_ONE_ANSWER:{
+            
+            [NSStringUtils setTextFor:self.tvAnsA withString:[randQuestion.answer objectAtIndex:0]];
+            
+            [self.tvAnsA setHidden:NO];
+            [self.tvAnsB setHidden:YES];
+            [self.tvAnsC setHidden:YES];
+            [self.tvAnsD setHidden:YES];
+        }
+            break;
+            
+        case QUESTION_WITH_TWO_ANSWERS:{
+            
+            [NSStringUtils setTextFor:self.tvAnsA withString:[randQuestion.answer objectAtIndex:0]];
+            [NSStringUtils setTextFor:self.tvAnsB withString:[randQuestion.answer objectAtIndex:1]];
+            
+            [self.tvAnsA setHidden:NO];
+            [self.tvAnsB setHidden:NO];
+            [self.tvAnsC setHidden:YES];
+            [self.tvAnsD setHidden:YES];
+        }
+            break;
+            
+        case QUESTION_WITH_THREE_ANSWERS:{
+            [NSStringUtils setTextFor:self.tvAnsA withString:[randQuestion.answer objectAtIndex:0]];
+            [NSStringUtils setTextFor:self.tvAnsB withString:[randQuestion.answer objectAtIndex:1]];
+            [NSStringUtils setTextFor:self.tvAnsC withString:[randQuestion.answer objectAtIndex:2]];
+
+            [self.tvAnsA setHidden:NO];
+            [self.tvAnsB setHidden:NO];
+            [self.tvAnsC setHidden:NO];
+            [self.tvAnsD setHidden:YES];
+        }
+            break;
+            
+        case QUESTION_WITH_FOUR_ANSWERS:{
+            
+            [NSStringUtils setTextFor:self.tvAnsA withString:[randQuestion.answer objectAtIndex:0]];
+            [NSStringUtils setTextFor:self.tvAnsB withString:[randQuestion.answer objectAtIndex:1]];
+            [NSStringUtils setTextFor:self.tvAnsC withString:[randQuestion.answer objectAtIndex:2]];
+            [NSStringUtils setTextFor:self.tvAnsD withString:[randQuestion.answer objectAtIndex:3]];
+            
+            [self.tvAnsA setHidden:NO];
+            [self.tvAnsB setHidden:NO];
+            [self.tvAnsC setHidden:NO];
+            [self.tvAnsD setHidden:NO];
+        }
+            break;
+            
+        default:
+            break;
+    }
+    
+    [self countDownTimer];
+}
+
+// Get in randroms 1 question from all of question in this Game.
+- (Question*) getRandomQuestion {
+    
+    // Read content index.txt
+    NSData * data = [FileUtils getContentFileInBundleWithName:@"index" extension:@"txt"];
+    NSString* contentAsString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+    // Convert line in file to element(IndexQuestionDTO) of array
+    NSArray *arrContent = [contentAsString componentsSeparatedByString:@"\n"];
+    NSMutableArray* arrIndex = [NSMutableArray new]; // array<IndexQuestionDTO>
+    
+    for (int i = 0; i< [arrContent count]; i++) {
+     
+        NSArray *arr = [arrContent[i] componentsSeparatedByString:@"\t"];
+        
+        if (arr.count > 1) {
+            IndexQuestionDTO * dto = [IndexQuestionDTO new];
+            dto.index = [arr[0] integerValue];
+            dto.path = arr[1];
+            [arrIndex addObject:dto];
+        }
+        else {
+            NSLog(@"Phan tu khong hop le %@", arr);
+        }
+    }
+    
+    // Get element From random number
+    IndexQuestionDTO *dto;
+    int r = rand() % TOTAL_QUESTION_APP;
+    
+    for (int j = 0; j< arrIndex.count; j++) {
+        
+        dto = [arrIndex objectAtIndex:j];
+        
+        if (dto.index > r ) {
+            break;
+        }
+    }
+    
+    // Convert path
+    NSString *name = [dto.path stringByReplacingOccurrencesOfString:@"/" withString:@"."];
+    NSMutableArray *lsData = [NSJSONSerialization JSONObjectWithData:[FileUtils getContentFileInBundleWithName:name extension:@"json"]
+                                                             options:0
+                                                               error:nil];
+    // Get Random Question Object
+    NSDictionary *dic = [lsData objectAtIndex:(dto.index - r - 1)];
+    Question* quest = [Question new];
+    
+    if ([NSStringUtils isHTMLFormat:[dic objectForKey:@"questionTitle"]]) {
+        quest.questionTitle = [NSStringUtils getAttributedStringFrom:[dic objectForKey:@"questionTitle"]];
+    }
+    else {
+        quest.questionTitle = [dic objectForKey:@"questionTitle"];
+    }
+    
+    quest.category = [dic objectForKey:@"category"];
+    quest.answer = [super convertNSStringToAttributed:[dic objectForKey:@"anwers"]];
+    quest.correctAnswer = [[dic objectForKey:@"correctAnswer"] integerValue];
+    
+    return quest;
+}
+
+// show correct and incorrect answer
+- (void) showAnswer:(int) answer WithColor:(CGColorRef) color
+{
+    switch (answer) {
+        case ANSWER_A:
+            [super setBorderFor:self.tvAnsA WithColor:[UIColor whiteColor].CGColor andBorderBold:1.0];
+            self.tvAnsA.layer.backgroundColor = color;
+            break;
+        case ANSWER_B:
+            [super setBorderFor:self.tvAnsB WithColor:[UIColor whiteColor].CGColor andBorderBold:1.0];
+            self.tvAnsB.layer.backgroundColor = color;
+            break;
+        case ANSWER_C:
+            [super setBorderFor:self.tvAnsC WithColor:[UIColor whiteColor].CGColor andBorderBold:1.0];
+            self.tvAnsC.layer.backgroundColor = color;
+            break;
+        case ANSWER_D:
+            [super setBorderFor:self.tvAnsD WithColor:[UIColor whiteColor].CGColor andBorderBold:1.0];
+            self.tvAnsD.layer.backgroundColor = color;
+            break;
+        default:
+            break;
+    }
+    
+}
+
+#pragma mark buton action on view
+- (IBAction)replay:(id)sender {
+    
+}
+
+- (IBAction)showLeaderBoard:(id)sender {
+    
+}
+
+- (IBAction)showAchivement:(id)sender {
+    
+}
+
+#pragma mark - select answers
+- (IBAction)chooseA:(id)sender {
+    randQuestion.selectedAnswer = ANSWER_A;
+    [self showAnswer:randQuestion.selectedAnswer WithColor:[UIColor redColor].CGColor];
+    [self showAnswer:(randQuestion.correctAnswer +1) WithColor:[UIColor greenColor].CGColor];
+}
+
+- (IBAction)chooseB:(id)sender {
+    randQuestion.selectedAnswer = ANSWER_B;
+    [self showAnswer:randQuestion.selectedAnswer WithColor:[UIColor redColor].CGColor];
+    [self showAnswer:(randQuestion.correctAnswer +1) WithColor:[UIColor greenColor].CGColor];
+}
+
+- (IBAction)chooseC:(id)sender {
+    randQuestion.selectedAnswer = ANSWER_C;
+    [self showAnswer:randQuestion.selectedAnswer WithColor:[UIColor redColor].CGColor];
+    [self showAnswer:(randQuestion.correctAnswer +1) WithColor:[UIColor greenColor].CGColor];
+}
+
+- (IBAction)chooseD:(id)sender {
+    randQuestion.selectedAnswer = ANSWER_D;
+    [self showAnswer:randQuestion.selectedAnswer WithColor:[UIColor redColor].CGColor];
+    [self showAnswer:(randQuestion.correctAnswer +1) WithColor:[UIColor greenColor].CGColor];
+}
+
+#pragma mark - Count down timer
+
+- (void)updateCounter:(NSTimer *)theTimer
+{
+    if (seconds > 0)
+    {
+        seconds -- ;
+        self.lbTimmer.text = [NSString stringWithFormat:@"%02d", seconds];
+    } else {
+        [timerForPlay invalidate];
+    }
+}
+
+-(void)countDownTimer
+{
+    seconds = 30;
+    
+    if([timerForPlay isValid]) {
+        [timerForPlay invalidate];
+    }
+    
+    timerForPlay = [NSTimer scheduledTimerWithTimeInterval:1.0f target:self selector:@selector(updateCounter:) userInfo:nil repeats:YES];
+}
+
+@end

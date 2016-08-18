@@ -1,0 +1,16 @@
+//
+//  ExamOfflineVC.h
+//  
+//
+//  Created by Vu Phan on 3/18/16.
+//
+//
+
+#import "BaseVC.h"
+
+@interface ExamOfflineVC : BaseVC
+
+@property(nonatomic, strong) NSString* nameFile; // duong dan den file text
+@property(nonatomic, assign) BOOL isOnlineMode;
+
+@end

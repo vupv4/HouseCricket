@@ -1,0 +1,77 @@
+//
+//  FeatureTabView.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 8/16/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+
+class FeatureTabView: BaseVC, IBaseView, UITableViewDelegate, UITableViewDataSource  {
+    
+    var categories = ["", "Best Flash Cards"]
+    var lsFeature:NSMutableArray!
+    var presenter:FeaturePresenter!
+    
+    @IBOutlet weak var tbvListFeature: UITableView!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        self.title = TEXT_FEATURE
+        tbvListFeature.delegate = self
+        tbvListFeature.dataSource = self
+        // Get list all feature
+        presenter = FeaturePresenter(delegate: self)
+        presenter.getListFeature()
+    }
+    
+    //TODO: Get data from model
+    func doOnSuccess(result: AnyObject?){
+        lsFeature = result as! NSMutableArray
+    }
+    
+    func doOnError(err: NSError?){
+        print("Error when get feature!!!")
+    }
+    
+    //TODO: Cofiguration Sesson
+    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return categories[section]
+    }
+    
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        return categories.count
+    }
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
+        if section == 0 {
+            return 1 // first section only one row
+        } else {
+            return lsFeature.count / 5
+        }
+    }
+    
+    //TODO: Cofiguration Cell
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return 144
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        let identifier = "cell"
+        var cell: CategoryRow! = tableView.dequeueReusableCellWithIdentifier(identifier) as? CategoryRow
+        
+        if cell == nil {
+            tableView.registerNib(UINib(nibName: "CategoryRow", bundle: nil), forCellReuseIdentifier: identifier)
+            cell = tableView.dequeueReusableCellWithIdentifier(identifier) as? CategoryRow
+        }
+        
+        cell.feature = lsFeature.objectAtIndex(indexPath.row) as! Feature
+        
+        return cell
+    }
+}
+

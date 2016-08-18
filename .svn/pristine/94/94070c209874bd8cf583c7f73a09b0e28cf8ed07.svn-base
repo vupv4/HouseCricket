@@ -1,0 +1,43 @@
+//
+//  QuestionCell.h
+//  
+//
+//  Created by Vu Phan on 3/21/16.
+//
+//
+
+#import <UIKit/UIKit.h>
+#import "QuestionCell.h"
+#import "Question.h"
+#import "AppConstant.h"
+
+@protocol RadioCellDelegate <NSObject>
+    -(void) myRadioCellDelegateDidCheckRadioButton:(UITableViewCell*)checkedCell;
+@end
+
+@interface QuestionCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UILabel *lbCategory;
+
+@property (weak, nonatomic) IBOutlet UITextView *lbQuestion;
+
+@property (weak, nonatomic) IBOutlet UITextView *lbAnswerA;
+@property (weak, nonatomic) IBOutlet UITextView *lbAnswerB;
+@property (weak, nonatomic) IBOutlet UITextView *lbAnswerC;
+@property (weak, nonatomic) IBOutlet UITextView *lbAnswerD;
+
+@property (weak, nonatomic) IBOutlet UIImageView *radioA;
+@property (weak, nonatomic) IBOutlet UIImageView *radioB;
+@property (weak, nonatomic) IBOutlet UIImageView *radioC;
+@property (weak, nonatomic) IBOutlet UIImageView *radioD;
+
+@property (weak, nonatomic) IBOutlet UIView *vContent;
+
+@property (nonatomic, weak) id <RadioCellDelegate> delegate;
+@property (nonatomic, strong) Question *data;
+@property (nonatomic, assign) BOOL isSubmited;
+
+- (void) loadCell;
+
+@end
+

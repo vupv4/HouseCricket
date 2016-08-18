@@ -1,0 +1,24 @@
+//
+//  UIImageViewDraggable.h
+
+#import <UIKit/UIKit.h>
+
+@interface UIImageViewDraggable : UIImageView
+
+@property (nonatomic, weak) IBOutlet NSLayoutConstraint *constraintCenterY;
+@property (nonatomic, weak) IBOutlet NSLayoutConstraint *constraintCenterX;
+
+@end
+
+@interface UIView(UIImageViewDraggable)
+
+-(UIImageViewDraggable*) imageViewDraggable;
+
+-(void) addDebugImage:(UIImage*) image;
+-(void) addDebugImageNamed:(NSString*) imageNamed;
+
+-(void) showDebugImageControl;
+
+- (void) hideDebugImageControl;
+- (void) hideAndShowDebugImage;
+@end

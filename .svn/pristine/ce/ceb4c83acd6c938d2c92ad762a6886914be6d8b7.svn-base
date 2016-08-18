@@ -1,0 +1,55 @@
+//
+//  FeatureVC.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 8/16/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+
+class FeatureVC: BaseVC, IBaseView, UITableViewDelegate, UITableViewDataSource{
+    
+    @IBOutlet weak var tbvFeature: UITableView!
+    
+    var lsFeature: NSMutableArray!
+    var ftPresenter: FeaturePresenter!
+    
+    override func viewDidLoad()
+    {
+        super.viewDidLoad()
+        
+        ftPresenter = FeaturePresenter(delegate: self)
+        lsFeature = NSMutableArray()
+        tbvFeature.dataSource = self
+        tbvFeature.delegate = self
+        
+        self.title = "FEATURE"
+        ftPresenter.getListFeature()
+    }
+    
+    // MARK: UITableViewDataSource
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return lsFeature.count;
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        let cell = UITableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: nil)
+        
+        let ft:Feature = lsFeature[indexPath.row] as! Feature
+        cell.textLabel?.text = "\(ft.name) - \(ft.price)"
+        
+        return cell
+    }
+    
+    // MARK: IBaseView
+    func doOnSuccess(result: AnyObject?) {
+        lsFeature = result as? NSMutableArray
+        tbvFeature .reloadData()
+    }
+    
+    func doOnError(err: NSError?) {
+        NSLog("loi trong qua trinh lay danh sach feature: \(err)")
+    }
+}

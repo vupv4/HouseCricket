@@ -1,0 +1,19 @@
+//
+//  NSStringUtils.h
+//  
+//
+//  Created by Vu Phan on 3/24/16.
+//
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
+@interface NSStringUtils : NSObject
+
++ (BOOL) isNullString:(NSString*) string ;
++ (BOOL) isHTMLFormat:(NSString*) str;
++ (void) setTextFor:(UITextView*) lb withString:(NSObject*) str;
++ (NSAttributedString*) getAttributedStringFrom:(NSString*) str;
+
+@end

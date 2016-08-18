@@ -1,0 +1,73 @@
+//
+//  MainVC.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 4/3/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+
+class MainVC: BaseVC, UITableViewDelegate, UITableViewDataSource{
+
+    @IBOutlet weak var tbvProduct: UITableView!
+    var lsProduct: NSMutableArray!
+    
+    override func viewDidLoad() {
+        
+        super.viewDidLoad()
+        
+        lsProduct = NSMutableArray()
+        tbvProduct.dataSource = self
+        tbvProduct.delegate = self
+        
+        // create database 
+        let documents = try! NSFileManager.defaultManager().URLForDirectory(.DocumentDirectory, inDomain: .UserDomainMask, appropriateForURL: nil, create: false)
+        let fileURL = documents.URLByAppendingPathComponent("test.sqlite")
+        
+        let database = FMDatabase(path: fileURL.path)
+        
+        if !database.open() {
+            print("Unable to open database")
+            return
+        }
+        
+        do {
+            try database.executeUpdate("create table test(x text, y text, z text)", values: nil)
+            try database.executeUpdate("insert into test (x, y, z) values (?, ?, ?)", values: ["a", "b", "c"])
+            try database.executeUpdate("insert into test (x, y, z) values (?, ?, ?)", values: ["e", "f", "g"])
+            
+            let rs = try database.executeQuery("select x, y, z from test", values: nil)
+            while rs.next() {
+                let x = rs.stringForColumn("x")
+                let y = rs.stringForColumn("y")
+                let z = rs.stringForColumn("z")
+                lsProduct .addObject(x)
+                
+                print("x = \(x); y = \(y); z = \(z)")
+            }
+            
+            tbvProduct .reloadData()
+        } catch let error as NSError {
+            print("failed: \(error.localizedDescription)")
+        }
+        
+        database.close()
+    }
+    
+    // MARK: UITableViewDataSource
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return lsProduct.count;
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        let cell = UITableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: nil)
+        
+        let productName = lsProduct[indexPath.row]
+        cell.textLabel?.text = "\(productName)%:"
+        
+        return cell
+    }
+    
+}

@@ -1,0 +1,79 @@
+//
+//  MainVC.m
+//  TypeDataExample
+//
+//  Created by Vu Phan on 4/4/15.
+//  Copyright (c) 2015 Viettel. All rights reserved.
+//
+
+#import "MainVC.h"
+#import "AppConstant.h"
+#import "StudyOfflineVC.h"
+#import "GrammarVC.h"
+#import "ExaminationVC.h"
+#import "RangkingVC.h"
+
+@interface MainVC ()
+
+@end
+
+@implementation MainVC 
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self removeDataFromPreLaunchApp];
+}
+
+- (void) viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self.navigationController.navigationBar setHidden:YES];
+}
+
+// delete downloaded file from pre launch App
+- (void) removeDataFromPreLaunchApp {
+    
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSArray   *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString  *documentsDirectory = [paths objectAtIndex:0];
+    
+    NSError *error = nil;
+    for (NSString *file in [fm contentsOfDirectoryAtPath:documentsDirectory error:&error]) {
+        
+        BOOL success = [fm removeItemAtPath:[NSString stringWithFormat:@"%@/%@", documentsDirectory, file] error:&error];
+        
+        if (!success || error) {
+            NSLog(@"error when delete downloaded file");
+        } else {
+            NSLog(@"Deleted file downloaded previous Luanch");
+        }
+    }
+}
+
+#pragma mark - action
+- (IBAction)grammar:(id)sender {
+     GrammarVC *gramVC = [[GrammarVC alloc]init];
+    [self.navigationController pushViewController:gramVC animated:NO];
+}
+
+- (IBAction)examination:(id)sender {
+    ExaminationVC *examVC = [[ExaminationVC alloc]init];
+    [self.navigationController pushViewController:examVC animated:NO];
+}
+
+- (IBAction)studyOffine:(id)sender {
+    StudyOfflineVC *offlineVC = [[StudyOfflineVC alloc]init];
+    [self.navigationController pushViewController:offlineVC animated:NO];
+}
+
+- (IBAction)excerciseRequest:(id)sender {
+    NSURL *url = [NSURL URLWithString:GPLUS_URL_SHARE];
+    [[UIApplication sharedApplication] openURL:url];
+}
+
+- (IBAction)ranking:(id)sender {
+    RangkingVC *rankVC = [[RangkingVC alloc]init];
+    [self.navigationController pushViewController:rankVC animated:NO];
+}
+
+
+@end

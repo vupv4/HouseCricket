@@ -1,0 +1,75 @@
+//
+//  MainVC.swift
+//  VPMTFramework
+//
+//  Created by Vu Phan on 4/3/16.
+//  Copyright © 2016 beeTeam. All rights reserved.
+//
+
+import UIKit
+
+class MainVC: BaseVC, UITableViewDelegate, UITableViewDataSource{
+
+    @IBOutlet weak var tbvProduct: UITableView!
+    var lsProduct: NSMutableArray!
+    
+    override func viewDidLoad() {
+        
+        super.viewDidLoad()
+        
+        lsProduct = NSMutableArray()
+        tbvProduct.dataSource = self
+        tbvProduct.delegate = self
+        
+        // create database 
+        let documents = try! NSFileManager.defaultManager().URLForDirectory(.DocumentDirectory, inDomain: .UserDomainMask, appropriateForURL: nil, create: false)
+        let fileURL = documents.URLByAppendingPathComponent("test.sqlite")
+        
+        let database = FMDatabase(path: fileURL.path)
+        
+        if !database.open() {
+            print("Unable to open database")
+            return
+        }
+        
+        do {
+            try database.executeUpdate("create table Products(code text, name text, price text)", values: nil)
+            try database.executeUpdate("insert into  Products (code, name, price) values (?, ?, ?)", values: ["111", "Bánh kem", "10.000"])
+            try database.executeUpdate("insert into  Products (code, name, price) values (?, ?, ?)", values: ["112", "Socola", "5.000"])
+            
+            let rs = try database.executeQuery("select code, name, price from Products", values: nil)
+            while rs.next() {
+                
+                let pro = Products()
+                pro.name = rs.stringForColumn("name")
+                pro.code = rs.stringForColumn("code")
+                pro.price = rs.stringForColumn("price")
+                
+                lsProduct .addObject(pro)
+            }
+            
+            tbvProduct .reloadData()
+            
+        } catch let error as NSError {
+            print("failed: \(error.localizedDescription)")
+        }
+        
+        database.close()
+    }
+    
+    // MARK: UITableViewDataSource
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return lsProduct.count;
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        let cell = UITableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: nil)
+        
+        let product: Products = lsProduct[indexPath.row] as! Products
+        cell.textLabel?.text = "\(product.code) - \(product.name)"
+        
+        return cell
+    }
+    
+}

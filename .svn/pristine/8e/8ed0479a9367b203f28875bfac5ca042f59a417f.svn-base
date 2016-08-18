@@ -1,0 +1,14 @@
+//
+//  RangkingVC.h
+//  
+//
+//  Created by Vu Phan on 3/20/16.
+//
+//
+
+#import "ViewController.h"
+#import "BaseVC.h"
+
+@interface RangkingVC : BaseVC
+
+@end

@@ -1,0 +1,20 @@
+//
+//  Question.h
+//  
+//
+//  Created by Vu Phan on 3/21/16.
+//
+//
+
+#import <Foundation/Foundation.h>
+
+@interface Question : NSObject
+
+@property (nonatomic, strong) NSObject* questionTitle; // co the la NSString hoac attributed String
+@property (nonatomic, strong) NSString* category;
+@property (nonatomic, strong) NSMutableArray* answer;
+@property (nonatomic, assign) int correctAnswer; // dap an dung
+
+@property (nonatomic, assign) int selectedAnswer; // dap an nguoi dung chon
+
+@end

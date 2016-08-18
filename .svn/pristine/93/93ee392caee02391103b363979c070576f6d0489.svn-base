@@ -1,0 +1,13 @@
+//
+//  MenuItemDTO.m
+//  
+//
+//  Created by Vu Phan on 3/10/16.
+//
+//
+
+#import "MenuItemDTO.h"
+
+@implementation MenuItemDTO
+
+@end
